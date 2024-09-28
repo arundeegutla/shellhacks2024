@@ -6,7 +6,8 @@ const nextConfig = {
     },
     distDir: 'out', // Where to export all pages
     staticPageGenerationTimeout: 1000,
-    reactStrictMode: false
+    reactStrictMode: false,
+    trailingSlash: true
 }
 
 export default nextConfig;
