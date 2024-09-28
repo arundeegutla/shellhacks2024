@@ -11,6 +11,7 @@ export default function Join() {
     const [roomCode, setRoomCode] = useState("");
     const [errorMessage, setErrorMessage] = useState(null);
     const [joining, setJoining] = useState(false);
+    
     const changeName = (e: React.ChangeEvent<HTMLInputElement>) => {
         setName(e.target.value);
     }

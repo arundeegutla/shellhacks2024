@@ -1,10 +1,35 @@
 import { onCall, CallableRequest } from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
+import { getFirestore } from "firebase-admin/firestore";
+import { initializeApp } from "firebase-admin/app";
+
+// Initialize the Firebase Admin SDK
+const firebaseApp = initializeApp()
+
+export const db = getFirestore(firebaseApp)
+export const rooms = db.collection('rooms');
+export const listeners = db.collection('listeners');
+
+export interface UserType {
+    name: string,
+    userID: string,
+    playerID: number,
+    roomCode: string
+};
+
+export interface RoomType {
+    gameID: -1,
+	users: UserType[],
+	open: true,
+	roomCode: string,
+	listenDocumentID: string
+};
 
 // Define the type for the data parameter
 interface HelloWorldData {
     name?: string;
 }
+
 
 // Start writing functions
 // https://firebase.google.com/docs/functions/typescript

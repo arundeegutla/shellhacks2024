@@ -38,3 +38,5 @@ function getErrorMessage(errorCode: ErrorCode) {
             return "An unknown error occurred";
     }
 }
+
+export { ErrorCode, getErrorMessage };
