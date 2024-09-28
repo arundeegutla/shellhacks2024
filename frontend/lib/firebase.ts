@@ -25,8 +25,6 @@ if (DEBUG) {
     connectFunctionsEmulator(functions, 'localhost', 5001);
 }
 
-// TODO: FIX LINK
-const baseURL = DEBUG ? "http://localhost:5001/shellhacks24/us-central1/" : "https://shellhacks24.cloudfunctions.net/";
 
 // Create callable functions
 
