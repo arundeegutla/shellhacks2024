@@ -3,5 +3,4 @@ export interface UserType {
     userID: string,
     playerID: number,
     roomCode: string
-    timeCreated: number,
 };

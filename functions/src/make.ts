@@ -1,5 +1,6 @@
 import { CallableRequest, onCall } from "firebase-functions/https";
-import { deepcopy, defaultRoom, generateRandomRoomCode } from "./util";
+import { deepcopy, generateRandomRoomCode } from "./util";
+import { defaultRoom } from "./game-utils/RoomType";
 import { doesRoomExist } from "./room";
 import { ErrorCode } from "./errorCodes";
 import { v4 as uuidv4 } from 'uuid';
