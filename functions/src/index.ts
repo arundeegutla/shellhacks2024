@@ -31,5 +31,6 @@ export const helloWorld = onCall((request: CallableRequest<HelloWorldData>) => {
 import { makeRoom } from "./make";
 import { joinRoom } from "./join";
 import { getRoomInfo } from "./room";
+import { leaveRoom } from "./leave";
 
-export { makeRoom, joinRoom, getRoomInfo };
+export { makeRoom, joinRoom, getRoomInfo, leaveRoom };

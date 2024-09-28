@@ -1,11 +1,11 @@
 "use client";
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { db, getRoomInfo } from '@/lib/firebase';
+import { db, getRoomInfo, leaveRoom } from '@/lib/firebase';
 import { ErrorCode } from '@/lib/util';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { Backdrop, Button, Card, CardHeader, CircularProgress, IconButton, Typography } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 
 export default function Room() {
     const router = useRouter();
@@ -77,6 +77,24 @@ export default function Room() {
         return () => unsubscribe();
     }, [roomListener]);
 
+    // Leave the room
+    const clickLeaveRoom = async () => {
+        if (userID === null || roomCode === null) return;
+        try {
+            localStorage.removeItem(roomCode);
+            leaveRoom({ roomCode, userID }).then((res) => {
+                const response = res.data;
+                if (response === undefined || response.error === undefined || response.error !== ErrorCode.noError) {
+                    console.log("error:" + response.error)
+                    return;
+                }
+            });
+            router.replace("/")
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     const userList = userNames.map((user, i) =>
         <Card key={i} raised sx={{ display: "flex", }}>
             <CardHeader
@@ -90,9 +108,9 @@ export default function Room() {
                     </div>
                 }
             />
-            {/* {name === user && <IconButton variant="contained" onClick={clickLeaveRoom} sx={{ marginLeft: "auto" }}>
+            {name === user && <IconButton variant="contained" onClick={clickLeaveRoom} sx={{ marginLeft: "auto" }}>
                 <CloseIcon style={{ color: "red" }} />
-            </IconButton>} */}
+            </IconButton>}
         </Card>
     );
 

@@ -19,7 +19,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const functions = getFunctions(app);
 
-const DEBUG = false;
+const DEBUG = true;
 if (DEBUG) {
     connectFirestoreEmulator(db, 'localhost', 8080);
     connectFunctionsEmulator(functions, 'localhost', 5001);
@@ -51,5 +51,6 @@ const makeRoom = httpsCallable<unknown, MakeRoomResponse>(functions, "makeRoom")
 const joinRoom = httpsCallable<unknown, JoinRoomResponse>(functions, "joinRoom");
 const helloWorld = httpsCallable(functions, "helloWorld");
 const getRoomInfo = httpsCallable<unknown, GetRoomInfoResponse>(functions, "getRoomInfo");
+const leaveRoom = httpsCallable<unknown, { error: ErrorCode }>(functions, "leaveRoom");
 
-export { db, makeRoom, joinRoom, helloWorld, getRoomInfo };
+export { db, makeRoom, joinRoom, helloWorld, getRoomInfo, leaveRoom };
