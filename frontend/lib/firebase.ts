@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
-import { getFunctions, httpsCallable } from "firebase/functions";
+import { connectFunctionsEmulator, getFunctions, httpsCallable } from "firebase/functions";
 
 
 const firebaseConfig = {
@@ -18,15 +18,19 @@ const analytics = getAnalytics(app);
 const db = getFirestore(app);
 const functions = getFunctions(app);
 
-const DEBUG = false;
-if (DEBUG) connectFirestoreEmulator(db, 'localhost', 8080);
+const DEBUG = true;
+if (DEBUG) {
+    connectFirestoreEmulator(db, 'localhost', 8080);
+    connectFunctionsEmulator(functions, 'localhost', 5001);
+}
 
 // TODO: FIX LINK
-const baseURL = DEBUG ? "http://localhost:5001/mobopoly-866b1/us-central1/" : "https://us-central1-mobopoly-866b1.cloudfunctions.net/";
+const baseURL = DEBUG ? "http://localhost:5001/shellhacks24/us-central1/" : "https://shellhacks24.cloudfunctions.net/";
 
 // Create callable functions
 // TODO: add types
 const makeRoom = httpsCallable(functions, "makeRoom");
 const joinRoom = httpsCallable(functions, "joinRoom");
+const helloWorld = httpsCallable(functions, "helloWorld");
 
-export { db, makeRoom, joinRoom };
+export { db, makeRoom, joinRoom, helloWorld };
