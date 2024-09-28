@@ -2,9 +2,11 @@ import { CallableRequest, onCall } from "firebase-functions/https";
 import { ErrorCode } from './errorCodes';
 import { updateListener, validateName } from "./util";
 import { getRoomData } from "./room";
-import { rooms, RoomType, UserType } from ".";
+import { rooms } from ".";
 import { v4 as uuidv4 } from 'uuid';
 import { logger } from "firebase-functions/v2";
+import { RoomType } from "./game-utils/RoomType";
+import { UserType } from "./user-utils/UserType";
 
 
 interface JoinRoomData {

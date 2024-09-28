@@ -10,26 +10,10 @@ export const db = getFirestore(firebaseApp)
 export const rooms = db.collection('rooms');
 export const listeners = db.collection('listeners');
 
-export interface UserType {
-    name: string,
-    userID: string,
-    playerID: number,
-    roomCode: string
-};
-
-export interface RoomType {
-    gameID: -1,
-	users: UserType[],
-	open: true,
-	roomCode: string,
-	listenDocumentID: string
-};
-
 // Define the type for the data parameter
 interface HelloWorldData {
     name?: string;
 }
-
 
 // Start writing functions
 // https://firebase.google.com/docs/functions/typescript
