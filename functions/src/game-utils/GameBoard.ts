@@ -16,7 +16,12 @@ export type GameBoard =
 {
     rows: Row[],
     guesses_left: number, 
+    
+    // game constants
+    num_guesses: number,
+    word_length: number,
     time_started: number,
+    true_word?: string,
 };
 
 export function createDefaultBoard(num_guesses: number, word_length: number): GameBoard
@@ -29,5 +34,7 @@ export function createDefaultBoard(num_guesses: number, word_length: number): Ga
         rows: rows,
         guesses_left: num_guesses,
         time_started: Date.now(),
+        num_guesses: num_guesses,
+        word_length: word_length,
     };
 }
