@@ -20,7 +20,7 @@
     }
   ],
   "hosting": {
-    "public": "frontend/.next",
+    "public": "frontend/out",
     "ignore": [
       "firebase.json",
       "**/.*",
