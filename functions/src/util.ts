@@ -21,14 +21,6 @@ export function validateName(name: string) {
 	return re.test(name);
 }
 
-export const defaultRoom = {
-	gameID: -1,
-	users: [],
-	open: true,
-	roomCode: "",
-	listenDocumentID: ""
-};
-
 export async function updateListener(listenerID: string, startGame: boolean) {
 	let listenerData = undefined;
 	try {
