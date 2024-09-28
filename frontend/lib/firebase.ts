@@ -25,6 +25,7 @@ if (DEBUG) {
     connectFunctionsEmulator(functions, 'localhost', 5001);
 }
 
+
 // Create callable functions
 
 export interface MakeRoomResponse {
