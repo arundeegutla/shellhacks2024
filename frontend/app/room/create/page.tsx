@@ -15,7 +15,7 @@ export default function Create() {
     const changeName = (e: React.ChangeEvent<HTMLInputElement>) => {
         setName(e.target.value);
     }
-    const createRoom = async (event: any) => {
+    const createRoom = async (event: React.FormEvent<HTMLFormElement>) => {
         if (creating) return;
         event.preventDefault();
         if (error) {
@@ -23,7 +23,7 @@ export default function Create() {
         }
         try {
             setCreating(true);
-            let response = (await makeRoom()).data;
+            const response = (await makeRoom()).data;
             setCreating(false);
             if (response === undefined || response.error === undefined) {
                 console.error("response to makeRoom undefined");
@@ -47,7 +47,7 @@ export default function Create() {
             const { roomCode } = response;
             console.log(roomCode);
             setCreating(true);
-            let jrResponse = (await joinRoom({ roomCode, name })).data;
+            const jrResponse = (await joinRoom({ roomCode, name })).data;
             setCreating(false);
             if (jrResponse === undefined || jrResponse.error === undefined || jrResponse.error !== ErrorCode.noError) {
                 console.log("error:" + jrResponse.error)
