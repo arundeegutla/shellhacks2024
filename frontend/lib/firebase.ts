@@ -2,6 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 import { connectFunctionsEmulator, getFunctions, httpsCallable } from "firebase/functions";
+import { ErrorCode } from "./util";
 
 
 const firebaseConfig = {
@@ -28,9 +29,29 @@ if (DEBUG) {
 const baseURL = DEBUG ? "http://localhost:5001/shellhacks24/us-central1/" : "https://shellhacks24.cloudfunctions.net/";
 
 // Create callable functions
-// TODO: add types
-const makeRoom = httpsCallable(functions, "makeRoom");
-const joinRoom = httpsCallable(functions, "joinRoom");
-const helloWorld = httpsCallable(functions, "helloWorld");
 
-export { db, makeRoom, joinRoom, helloWorld };
+export interface MakeRoomResponse {
+    roomCode: string,
+    error: ErrorCode
+}
+
+export interface JoinRoomResponse {
+    error: ErrorCode,
+    userID: string,
+    roomListener: string
+}
+interface GetRoomInfoResponse {
+    roomListener: string,
+    usersInRoom: string[],
+    requesterIsHost: boolean
+    host: string,
+    error: ErrorCode
+}
+
+
+const makeRoom = httpsCallable<unknown, MakeRoomResponse>(functions, "makeRoom");
+const joinRoom = httpsCallable<unknown, JoinRoomResponse>(functions, "joinRoom");
+const helloWorld = httpsCallable(functions, "helloWorld");
+const getRoomInfo = httpsCallable<unknown, GetRoomInfoResponse>(functions, "getRoomInfo");
+
+export { db, makeRoom, joinRoom, helloWorld, getRoomInfo };

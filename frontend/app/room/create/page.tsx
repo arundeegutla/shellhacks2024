@@ -2,67 +2,68 @@
 import { useState } from "react";
 import { Button, CircularProgress, TextField } from '@mui/material';
 import ErrorMessage from "@/components/errorMessage";
-import { randomName, validateName, getNameHelperText } from "@/lib/util";
+import { randomName, validateName, getNameHelperText, ErrorCode } from "@/lib/util";
 import { makeRoom, joinRoom } from "@/lib/firebase";
+import { useRouter } from "next/navigation";
 
 export default function Create() {
+    const router = useRouter();
     const [name, setName] = useState(randomName());
-    const [errorMessage, setErrorMessage] = useState(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [creating, setCreating] = useState(false);
     const error = !validateName(name);
     const changeName = (e: React.ChangeEvent<HTMLInputElement>) => {
         setName(e.target.value);
     }
-    // const createRoom = async (event) => {
-    //     if (creating) return;
-    //     event.preventDefault();
-    //     if (error) {
-    //         return;
-    //     }
-    //     try {
-    //         setCreating(true);
-    //         let response = await makeRoom();
-    //         setCreating(false);
-    //         if (response === undefined || response.error === undefined) {
-    //             console.error("response to makeRoom undefined");
-    //             return;
-    //         }
-    //         if (response.error != errorCodes.noError) {
-    //             switch (response.error) {
-    //                 case errorCodes.invalidName:
-    //                     setErrorMessage("Invalid name");
-    //                     break;
-    //                 case errorCodes.roomFull:
-    //                     setErrorMessage("Room is full");
-    //                     break;
-    //                 default:
-    //                     setErrorMessage("An unknown error occurred");
-    //                     break;
-    //             }
-    //             return;
-    //         }
-    //         setErrorMessage(null);
-    //         const { roomCode } = response;
-    //         console.log(roomCode);
-    //         setCreating(true);
-    //         response = await joinRoom({ roomCode, name });
-    //         setCreating(false);
-    //         if (response === undefined || response.error === undefined || response.error !== errorCodes.noError) {
-    //             console.log("error:" + response.error)
-    //             return;
-    //         }
-    //         console.log(response);
-    //         const { userID, roomListener } = response;
-    //         console.log(userID, roomListener);
-    //         localStorage.setItem(roomCode, JSON.stringify({ userID, roomListener, name }));
-    //         navigate(`/room/${roomCode}`);
-    //     } catch (err) {
-    //         console.error(err);
-    //     }
-    // };
-    // onSubmit={createRoom}>
+    const createRoom = async (event: any) => {
+        if (creating) return;
+        event.preventDefault();
+        if (error) {
+            return;
+        }
+        try {
+            setCreating(true);
+            let response = (await makeRoom()).data;
+            setCreating(false);
+            if (response === undefined || response.error === undefined) {
+                console.error("response to makeRoom undefined");
+                return;
+            }
+            if (response.error != ErrorCode.noError) {
+                switch (response.error) {
+                    case ErrorCode.invalidName:
+                        setErrorMessage("Invalid name");
+                        break;
+                    case ErrorCode.roomFull:
+                        setErrorMessage("Room is full");
+                        break;
+                    default:
+                        setErrorMessage("An unknown error occurred");
+                        break;
+                }
+                return;
+            }
+            setErrorMessage(null);
+            const { roomCode } = response;
+            console.log(roomCode);
+            setCreating(true);
+            let jrResponse = (await joinRoom({ roomCode, name })).data;
+            setCreating(false);
+            if (jrResponse === undefined || jrResponse.error === undefined || jrResponse.error !== ErrorCode.noError) {
+                console.log("error:" + jrResponse.error)
+                return;
+            }
+            console.log(jrResponse);
+            const { userID, roomListener } = jrResponse;
+            console.log(userID, roomListener);
+            localStorage.setItem(roomCode, JSON.stringify({ userID, roomListener, name }));
+            router.push(`/room/lobby?roomCode=${roomCode}`);
+        } catch (err) {
+            console.error(err);
+        }
+    };
     return (
-        <form className="landing">
+        <form className="landing" onSubmit={createRoom}>
             <TextField variant="outlined" label="Enter a Name" required
                 value={name}
                 onChange={changeName}
