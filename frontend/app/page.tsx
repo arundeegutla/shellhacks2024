@@ -1,3 +1,5 @@
+'use client';
+import { helloWorld } from "@/lib/firebase";
 import { Button, IconButton } from "@mui/material";
 import Link from "next/link";
 

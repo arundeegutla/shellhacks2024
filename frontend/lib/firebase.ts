@@ -1,7 +1,8 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
-import { getFunctions, httpsCallable } from "firebase/functions";
+import { connectFunctionsEmulator, getFunctions, httpsCallable } from "firebase/functions";
+import { ErrorCode } from "./util";
 
 
 const firebaseConfig = {
@@ -14,19 +15,42 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+// const analytics = getAnalytics(app);
 const db = getFirestore(app);
 const functions = getFunctions(app);
 
-const DEBUG = false;
-if (DEBUG) connectFirestoreEmulator(db, 'localhost', 8080);
+const DEBUG = true;
+if (DEBUG) {
+    connectFirestoreEmulator(db, 'localhost', 8080);
+    connectFunctionsEmulator(functions, 'localhost', 5001);
+}
 
-// TODO: FIX LINK
-const baseURL = DEBUG ? "http://localhost:5001/mobopoly-866b1/us-central1/" : "https://us-central1-mobopoly-866b1.cloudfunctions.net/";
 
 // Create callable functions
-// TODO: add types
-const makeRoom = httpsCallable(functions, "makeRoom");
-const joinRoom = httpsCallable(functions, "joinRoom");
 
-export { db, makeRoom, joinRoom };
+export interface MakeRoomResponse {
+    roomCode: string,
+    error: ErrorCode
+}
+
+export interface JoinRoomResponse {
+    error: ErrorCode,
+    userID: string,
+    roomListener: string
+}
+interface GetRoomInfoResponse {
+    roomListener: string,
+    usersInRoom: string[],
+    requesterIsHost: boolean
+    host: string,
+    error: ErrorCode
+}
+
+
+const makeRoom = httpsCallable<unknown, MakeRoomResponse>(functions, "makeRoom");
+const joinRoom = httpsCallable<unknown, JoinRoomResponse>(functions, "joinRoom");
+const helloWorld = httpsCallable(functions, "helloWorld");
+const getRoomInfo = httpsCallable<unknown, GetRoomInfoResponse>(functions, "getRoomInfo");
+const leaveRoom = httpsCallable<unknown, { error: ErrorCode }>(functions, "leaveRoom");
+
+export { db, makeRoom, joinRoom, helloWorld, getRoomInfo, leaveRoom };
