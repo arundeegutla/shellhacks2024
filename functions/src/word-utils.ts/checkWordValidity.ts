@@ -5,7 +5,7 @@ export function isWordValid(word: string): boolean
     return !(
         word.length < MIN_WORD_LENGTH || 
         word.length > MAX_WORD_LENGTH || 
-        word.search("[^A-Z]") !== -1 ||
+        /[^A-Z]/.test(word.toUpperCase()) ||
         !isWordInDictionary(word)
     );
 }
