@@ -62,9 +62,13 @@ function getRoundReference(roundId: string, roomId: string)
             .doc(roundId);
 }
 
-export async function setTrueWord(word: string, roundId: string, roomId: string)
+export async function setTrueWordAndTriggerRound(word: string, roundId: string, roomId: string)
 {
-    return getRoundReference(roundId, roomId).update({'true_word': word});
+    // add the true word and start the round
+    await getRoundReference(roundId, roomId).update({
+        'true_word': word,
+        'has_started': true
+    });
 }
 
 export async function getTrueWord(roundId: string, roomId: string)
