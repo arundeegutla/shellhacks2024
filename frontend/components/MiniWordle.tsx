@@ -1,3 +1,7 @@
+import { FaCheckCircle } from "react-icons/fa";
+import { FaSquareCheck } from "react-icons/fa6";
+import { MdCancel } from "react-icons/md";
+
 const WORD_LENGTH = 5;
 const MAX_GUESSES = 6;
 
@@ -13,25 +17,49 @@ const getLetterState = (index: number, row: number, ansKey: number[][]) => {
 };
 
 export default function KeyBoard({
-  guesses, isVisible, ansKey
+  name, guesses, ansKey, timeLeft
 }: {
+  name: string;
   guesses: string[];
-  isVisible: boolean;
   ansKey: number[][];
+  timeLeft: number;
 }) {
-  return <div className="grid grid-rows-6 gap-1 mb-4" role="grid" aria-label="Wordle game board">
-    {guesses.map((guess, rowIndex) => (
-      <div key={rowIndex} className="flex gap-1" role="row">
-        {Array.from({ length: WORD_LENGTH }).map((_, colIndex) => (
-          <div
-            key={colIndex}
-            className={`w-14 h-14 flex items-center justify-center rounded-sm text-3xl font-bold ${getLetterState(colIndex, rowIndex, ansKey)}`}
-            role="cell"
-          >
-            {isVisible ? guess[colIndex] : ''}
-          </div>
-        ))}
+
+  const overlay = () => {
+
+    let AC = ansKey.some(row => row.every(num => num === 3));
+    if (AC) {
+      return <div className="absolute top-0 w-full h-full flex flex-row items-center justify-center  text-green-800 border-2 border-green-700 rounded-sm backdrop-brightness-[.4]">
+        {/* <div className="absolute w-full h-full flex flex-row items-center justify-center bg-green-400/15 text-green-800 blur-3xl"></div> */}
+        <FaSquareCheck className={`text-green-500 text-2xl`} />
       </div>
-    ))}
-  </div>;
+    }
+    if (timeLeft == 0) {
+      return <div className="absolute top-0 w-full h-full flex flex-row items-center justify-center  text-red-800 border-2 border-red-700 rounded-sm backdrop-brightness-[.4]">
+        {/* <div className="absolute w-full h-full flex flex-row items-center justify-center bg-green-400/15 text-green-800 blur-3xl"></div> */}
+        <MdCancel className={`text-red-500 text-2xl`} />
+      </div>
+    }
+
+  };
+
+
+  return (<div className="">
+    <h2>{name}</h2>
+    <div className="relative grid grid-rows-6 gap-1 mb-4" role="grid" aria-label="Wordle game board">
+      {ansKey.map((guess, rowIndex) => (
+        <div key={rowIndex} className="flex gap-1" role="row">
+          {Array.from({ length: WORD_LENGTH }).map((_, colIndex) => (
+            <div
+              key={colIndex}
+              className={`w-4 h-4 flex items-center justify-center rounded-sm text-sm font-bold ${getLetterState(colIndex, rowIndex, ansKey)}`}
+              role="cell"
+            >
+            </div>
+          ))}
+        </div>
+      ))}
+      {overlay()}
+    </div>
+  </div>);
 }

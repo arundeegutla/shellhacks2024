@@ -4,9 +4,62 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { MdOutlineTimer } from "react-icons/md";
 import KeyBoard from '@/components/KeyBoard';
+import MiniWordle from '@/components/MiniWordle';
 
 const WORD_LENGTH = 5;
 const MAX_GUESSES = 6;
+
+const friends = [
+  {
+    name: "Arun",
+    guesses: ["RAISE", "CREAM", "TRICK", "CLAPS", "ZZZZZ", "REACT"],
+    ansKey: [
+      [3, 2, 1, 2, 1], // For "RAISE" -> R=green, A=yellow, I=blank, S=yellow, E=blank
+      [2, 3, 3, 3, 1], // For "CREAM" -> C=yellow, R=green, E=green, A=green, M=blank
+      [1, 1, 1, 2, 1], // For "TRICK" -> T=blank, R=blank, I=blank, C=yellow, K=blank
+      [1, 1, 2, 1, 1], // For "CLAPS" -> C=blank, L=blank, A=yellow, P=blank, S=blank
+      [1, 1, 1, 1, 1],  // Extra blank row
+      [3, 3, 3, 3, 3], // For "REACT" -> All green (correct word)
+    ]
+  },
+  {
+    name: "Maya",
+    guesses: ["STARE", "LEMON", "TRAIL", "SPACE", "REACT"],
+    ansKey: [
+      [1, 1, 1, 3, 3], // For "STARE" -> S=blank, T=blank, A=blank, R=green, E=green
+      [1, 1, 1, 1, 1], // For "LEMON" -> All wrong letters
+      [1, 2, 1, 2, 1], // For "TRAIL" -> T=blank, R=yellow, A=blank, I=yellow, L=blank
+      [1, 2, 1, 3, 3], // For "SPACE" -> S=blank, P=yellow, A=blank, C=green, E=green
+      [0, 0, 0, 0, 0],  // Extra blank row
+      [0, 0, 0, 0, 0]  // Extra blank row
+    ]
+  },
+  {
+    name: "Leo",
+    guesses: ["CRISP", "SHARE", "RANGE", "TRACE", "REACT"],
+    ansKey: [
+      [2, 1, 1, 1, 1], // For "CRISP" -> C=yellow, R=blank, I=blank, S=blank, P=blank
+      [1, 1, 3, 3, 3], // For "SHARE" -> S=blank, H=blank, A=green, R=green, E=green
+      [3, 3, 2, 3, 3], // For "RANGE" -> R=green, A=green, N=yellow, G=green, E=green
+      [1, 3, 3, 3, 3], // For "TRACE" -> T=blank, R=green, A=green, C=green, E=green
+      [3, 3, 3, 3, 3], // For "REACT" -> All green (correct word)
+      [0, 0, 0, 0, 0]  // Extra blank row
+    ]
+  },
+  {
+    name: "Alex",
+    guesses: ["PLANE", "ACTOR", "CRAFT", "EARTH", "REACT"],
+    ansKey: [
+      [1, 2, 3, 1, 3], // For "PLANE" -> P=blank, L=yellow, A=green, N=blank, E=green
+      [1, 3, 3, 1, 2], // For "ACTOR" -> A=blank, C=green, T=green, O=blank, R=yellow
+      [2, 3, 3, 1, 1], // For "CRAFT" -> C=yellow, R=green, A=green, F=blank, T=blank
+      [3, 1, 3, 1, 1], // For "EARTH" -> E=green, A=blank, R=green, T=blank, H=blank
+      [3, 3, 3, 3, 3], // For "REACT" -> All green (correct word)
+      [0, 0, 0, 0, 0]  // Extra blank row
+    ]
+  }
+];
+
 
 
 export default function Room() {
@@ -19,7 +72,7 @@ export default function Room() {
   const [currentRow, setCurrentRow] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [solution] = useState('REACT');
-  const [timeLeft, setTimeLeft] = useState(180); // Timer starts at 3 minutes (180 seconds)
+  const [timeLeft, setTimeLeft] = useState(10); // Timer starts at 3 minutes (180 seconds)
 
   const submitGuess = () => {
     const newGuesses = [...guesses];
@@ -100,34 +153,41 @@ export default function Room() {
   };
 
   return (
-    <div className="m-auto">
+    <div className="m-auto w-full">
       Your Room ID is: <span className="font-bold">{roomId}</span>
-      <div className="flex flex-col items-center justify-center min-h-screen p-4">
-        <div className='flex flex-row items-center justify-center rounded-lg bg-white/10 px-2 py-1 mb-6 font-medium  min-w-20 gap-1'>
-          <MdOutlineTimer />
-          {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
-        </div>
-        <div className="grid grid-rows-6 gap-1 mb-4" role="grid" aria-label="Wordle game board">
-          {guesses.map((guess, rowIndex) => (
-            <div key={rowIndex} className="flex gap-1" role="row">
-              {Array.from({ length: WORD_LENGTH }).map((_, colIndex) => (
-                <div
-                  key={colIndex}
-                  className={`w-14 h-14 flex items-center justify-center rounded-sm text-3xl font-bold ${getLetterState(guess[colIndex] || '', colIndex, rowIndex)}`}
-                  role="cell"
-                >
-                  {guess[colIndex] || (rowIndex === currentRow ? currentGuess[colIndex] : '')}
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-        <KeyBoard handleKeyPress={handleKeyPress} gameOver={gameOver} />
-        {gameOver && (
-          <div className="text-2xl font-bold">
-            {currentGuess === solution ? 'Congratulations!' : `Game Over! The word was ${solution}`}
+      <div className="flex flex-row items-center justify-evenly min-h-screen p-4 w-full">
+        <div className='flex flex-col items-center justify-center wordle'>
+          <div className='flex flex-row items-center justify-center rounded-lg bg-white/10 px-2 py-1 mb-6 font-medium  min-w-20 gap-1'>
+            <MdOutlineTimer />
+            {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
           </div>
-        )}
+          <div className="grid grid-rows-6 gap-1 mb-4" role="grid" aria-label="Wordle game board">
+            {guesses.map((guess, rowIndex) => (
+              <div key={rowIndex} className="flex gap-1" role="row">
+                {Array.from({ length: WORD_LENGTH }).map((_, colIndex) => (
+                  <div
+                    key={colIndex}
+                    className={`w-14 h-14 flex items-center justify-center rounded-sm text-3xl font-bold ${getLetterState(guess[colIndex] || '', colIndex, rowIndex)}`}
+                    role="cell"
+                  >
+                    {guess[colIndex] || (rowIndex === currentRow ? currentGuess[colIndex] : '')}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+          <KeyBoard handleKeyPress={handleKeyPress} gameOver={gameOver} />
+          {gameOver && (
+            <div className="text-2xl font-bold">
+              {currentGuess === solution ? 'Congratulations!' : `Game Over! The word was ${solution}`}
+            </div>
+          )}
+        </div>
+        <div className='flex flex-col gap-1'>
+          {friends.map((m, i) => {
+            return <MiniWordle key={i} ansKey={m.ansKey} guesses={m.guesses} name={m.name} timeLeft={timeLeft} />
+          })}
+        </div>
       </div>
     </div>
   );
