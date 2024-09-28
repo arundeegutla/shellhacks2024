@@ -25,7 +25,7 @@ if (DEBUG) {
     connectFunctionsEmulator(functions, 'localhost', 5001);
 }
 
-
+console.log(firebaseConfig);
 // Create callable functions
 
 export interface MakeRoomResponse {
