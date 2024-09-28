@@ -42,3 +42,9 @@ export const helloWorld = onCall((request: CallableRequest<HelloWorldData>) => {
     // Return a response
     return { message: `Hello, ${name}!` };
 });
+
+
+import { makeRoom } from "./make";
+import { joinRoom } from "./join";
+
+export { makeRoom, joinRoom };

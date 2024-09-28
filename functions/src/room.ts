@@ -2,7 +2,7 @@ import { logger } from "firebase-functions/v2";
 import { rooms } from ".";
 
 
-async function doesRoomExist(roomCode: string) {
+export async function doesRoomExist(roomCode: string) {
 	const re = new RegExp("^[A-Z]{6}$");
 	if (!re.test(roomCode)) return false;
 	let documentExists = false;
