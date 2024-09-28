@@ -1,7 +1,7 @@
 import type { UserType } from "../user-utils/UserType";
 
 export interface RoomType {
-    gameID: -1,
+	gameID: -1,
 	users: UserType[],
 	open: true,
 	roomCode: string,
