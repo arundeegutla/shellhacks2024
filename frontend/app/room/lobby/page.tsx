@@ -108,7 +108,7 @@ export default function Room() {
                     </div>
                 }
             />
-            {name === user && <IconButton variant="contained" onClick={clickLeaveRoom} sx={{ marginLeft: "auto" }}>
+            {name === user && <IconButton onClick={clickLeaveRoom} sx={{ marginLeft: "auto" }}>
                 <CloseIcon style={{ color: "red" }} />
             </IconButton>}
         </Card>
