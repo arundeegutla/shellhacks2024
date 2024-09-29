@@ -107,32 +107,7 @@ export default function Join() {
     <div className="m-auto w-full h-full flex flex-col items-center justify-center">
       <div className="w-full h-full flex flex-col items-center justify-center mt-20">
         <h1 className="text-4xl font-semibold">Join a Room</h1>
-        <div className=" flex flex-col items-start justify-center">
-          <div className="relative mb-4">
-            <a className="text-sm">Code</a>
-            <div className="grid grid-cols-6 gap-1" role="grid" aria-label="Room code input">
-              {Array.from({ length: 6 }).map((_, index) => (
-                <div
-                  key={index}
-                  className={`w-20 h-20 flex items-center justify-center rounded-lg text-3xl font-bold text-white
-                  ${joining ? 'animate-flip2' : ''} ${getBlockColor()}`}
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                  role="cell"
-                >
-                  {roomCode[index] || ''}
-                </div>
-              ))}
-            </div>
-            <input
-              ref={inputRef}
-              value={roomCode}
-              onChange={(e) => setRoomCode(e.target.value)}
-              type="text"
-              className="absolute opacity-0 top-0 left-0 w-full h-full"
-              onKeyDown={handleKeyDown}
-              autoComplete="off"
-            />
-          </div>
+        <div className=" flex flex-col items-start justify-start">
 
           <div className="relative mb-4">
             <a className="text-sm">Code</a>
