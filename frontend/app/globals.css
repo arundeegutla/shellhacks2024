@@ -44,7 +44,7 @@ body {
     transform: perspective(400px) rotateX(360deg);
   }
 }
-.animate-flip {
+.animate-flip2 {
   animation: flip2 1s infinite linear;
 }
 

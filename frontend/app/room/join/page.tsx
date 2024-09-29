@@ -137,7 +137,7 @@ export default function Join() {
                 <div
                   key={index}
                   className={`w-20 h-20 flex items-center justify-center rounded-sm text-3xl font-bold text-white
-                  ${joining ? 'animate-flip' : ''} ${getBlockColor()}`}
+                  ${joining ? 'animate-flip2' : ''} ${getBlockColor()}`}
                   style={{ animationDelay: `${index * 0.1}s` }}
                   role="cell"
                 >
@@ -158,7 +158,7 @@ export default function Join() {
         <button
           onClick={goToRoom}
           disabled={!canJoin || joining}
-          className={`px-6 py-2 rounded-lg shadow-lg font-bold transition-colors ${canJoin && !joining
+          className={`hover:cursor-pointer px-6 py-2 rounded-lg shadow-lg font-bold transition-colors ${canJoin && !joining
             ? 'bg-green-500 text-white hover:bg-green-600'
             : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
