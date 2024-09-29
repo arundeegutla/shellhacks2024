@@ -16,7 +16,7 @@ const getLetterState = (index: number, row: number, ansKey: number[][]) => {
   return 'bg-white/15 text-white';
 };
 
-export default function KeyBoard({
+export default function Mini({
   name, guesses, ansKey, timeLeft
 }: {
   name: string;
@@ -52,7 +52,7 @@ export default function KeyBoard({
           {Array.from({ length: WORD_LENGTH }).map((_, colIndex) => (
             <div
               key={colIndex}
-              className={`w-4 h-4 flex items-center justify-center rounded-sm text-sm font-bold ${getLetterState(colIndex, rowIndex, ansKey)}`}
+              className={`w-5 h-5 flex items-center justify-center rounded-sm text-sm font-bold ${getLetterState(colIndex, rowIndex, ansKey)}`}
               role="cell"
             >
             </div>

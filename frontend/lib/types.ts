@@ -17,6 +17,7 @@ export interface UserType {
     userID: string,
     playerID: number,
     roomCode: string
+    points: number;
 };
 
 export enum Verdict
