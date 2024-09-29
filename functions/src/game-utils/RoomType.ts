@@ -7,7 +7,8 @@ export interface RoomType {
 	roomCode: string,
 	listenDocumentID: string,
 	roundStarted: boolean,
-	roundCount: number
+	roundCount: number,
+	hostID?: string
 };
 
 export const defaultRoom = {

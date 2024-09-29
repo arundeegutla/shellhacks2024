@@ -3,7 +3,7 @@ import { ErrorCode } from "../errorCodes";
 import { getRoomData } from "../room";
 import { guessWord } from "../word-utils/wordGuessing";
 import { updateListener } from "../util";
-import { setTrueWordAndTriggerRound, createRound } from "../firebase-utils/firebaseCalls";
+import { setTrueWordAndTriggerRound, createRound, getRoomReference } from "../firebase-utils/firebaseCalls";
 import { RoomType } from "../game-utils/RoomType";
 
 const NUM_GUESSES = 6, WORD_LENGTH = 5;
@@ -36,7 +36,10 @@ export const submitGuess = onCall(async (request: CallableRequest<WordData>) => 
 	}
 
     // perform function and clean up
-    await guessWord(word, userId, roundId, roomCode);
+    const potentialError = await guessWord(word, userId, roundId, roomCode);
+    if (potentialError != ErrorCode.noError) {
+        return {error: potentialError};
+    }
     const roomData = await getRoomData(roomCode);
     if(roomData === undefined)
     {
@@ -77,8 +80,9 @@ export const submitSecretWord = onCall(async (request: CallableRequest<WordData>
 	return result;
 });
 
-export const initiateRound = onCall(async (request: CallableRequest<{room_code: string}>) => {
+export const initiateRound = onCall(async (request: CallableRequest<{room_code: string, user_id: string}>) => {
 	const roomCode = request.data.room_code;
+    const userID = request.data.user_id;
 
     if (roomCode === undefined ) {
         return {error: ErrorCode.missingParameters};
@@ -97,11 +101,17 @@ export const initiateRound = onCall(async (request: CallableRequest<{room_code: 
     }
 
     const room = roomData as RoomType;
+
+    if (room.hostID != userID) {
+        return {error: ErrorCode.userNotHost};
+    }
+
     const users = room.users.map((user) => user.userID);   // eslint-disable-line
     const roundId = String(room.roundCount);               // eslint-disable-line
 
     await createRound(users, roundId, roomCode, NUM_GUESSES, WORD_LENGTH);
 	await updateListener(roomData.listenDocumentID, true);
+    getRoomReference(roomCode).update({roundCount: room.roundCount + 1});
 	return result;
 });
 
