@@ -1,6 +1,6 @@
 import { GameBoard } from "./GameBoard";
 
-export type RoundType =
+export type Round =
 {
     has_started: boolean,
     time_started: number,

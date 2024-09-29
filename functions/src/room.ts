@@ -130,7 +130,7 @@ export const getGameInfo = onCall(async (request: CallableRequest<GetRoomInfoDat
 
 	for(let i = 0; i < roundCount; i++) {
 		const usersSnapshot = await rooms.doc(roomCode).collection("rounds").doc(i.toString()).collection("users").get();
-		const usersCollection = usersSnapshot.docs.map(doc => ({id: doc.id, data: doc.data()}));
+		const usersCollection = usersSnapshot.docs.map(doc => ({id: parseInt(doc.id), data: doc.data()}));
 		roomData.rounds.push(usersCollection);
 	}
 
