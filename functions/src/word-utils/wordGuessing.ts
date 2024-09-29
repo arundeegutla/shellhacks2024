@@ -79,28 +79,9 @@ export async function endRound(roomId: string, roundId: string) {
 }
 
 
-export async function wrapUpRound(roomId: string, roundId: string, userId: string) {
-    const roomRef = getRoomReference(roomId);
-    const roomData = (await roomRef.get()).data();
-    const roundCount = roomData!.roundCount;
-    const gameState = await getGameBoard(userId, roundId, roomId);
-    if (roundCount == roomData!.users.length) {
-        // await roomRef.update({ is_done: true });
-    } else {
-        // move this to initiateRound
-        let hostIdx = roomData!.users.findIndex((user: UserType) => user.userID === roomData!.hostID);
-        if (hostIdx === -1) {
-            logger.error(`Host not found in room ${roomId}`);
-            return ErrorCode.userNotFound;
-        }
-        hostIdx = (hostIdx + 1) % roomData!.users.length;
-        const newHost = roomData!.users[hostIdx].userID;
-        roomRef.update({ hostID: newHost, roundStarted: false, roundCount: roundCount + 1 });
-        let players = roomData!.users.filter((user: UserType) => user.userID !== newHost).map((user: UserType) => user.userID);
-        await createRound(players, roundCount.toString(), roomId, gameState.num_guesses, gameState.word_length);
-    }
-    return ErrorCode.noError;
-}
+// export async function wrapUpRound(roomId: string, roundId: string, userId: string) {
+    
+// }
 // modifies the game board with the new guess, returns if the game was won
 function updateStateWithGuess(wordGuess: string, trueWord: string, gameBoard: GameBoard) {
     const NUM_GUESS: number = gameBoard.num_guesses - gameBoard.guesses_left;

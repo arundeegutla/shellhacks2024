@@ -3,7 +3,7 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { createDefaultBoard } from '../game-utils/GameBoard';
 import { GameBoard } from '../game-utils/GameBoard';
 import { Round } from '../game-utils/RoundType';
-import { wrapUpRound } from '../word-utils/wordGuessing';
+// import { wrapUpRound } from '../word-utils/wordGuessing';
 // import { increment } from "firebase/firestore";
 
 
@@ -106,13 +106,13 @@ export async function getTrueWord(roundId: string, roomId: string)
 }
 
 // TODO: FIX THIS
-export async function endTurn(userId: string, roundId: string, roomId: string)
-{
-    const batch = getFirestore().batch();
-    batch.update(getBoardReference(userId, roundId, roomId), {
-        'guesses_left': 0,
-        'is_done': true
-    });
-    await batch.commit();
-    await wrapUpRound(roomId, roundId, userId);
-}
+// export async function endTurn(userId: string, roundId: string, roomId: string)
+// {
+//     const batch = getFirestore().batch();
+//     batch.update(getBoardReference(userId, roundId, roomId), {
+//         'guesses_left': 0,
+//         'is_done': true
+//     });
+//     await batch.commit();
+//     await wrapUpRound(roomId, roundId, userId);
+// }
