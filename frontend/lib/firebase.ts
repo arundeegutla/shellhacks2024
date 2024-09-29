@@ -3,7 +3,7 @@ import { getAnalytics } from "firebase/analytics";
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 import { connectFunctionsEmulator, getFunctions, httpsCallable } from "firebase/functions";
 import { ErrorCode } from "./util";
-import { JoinRoomResponse, MakeRoomResponse, GetRoomInfoResponse } from "./types";
+import { JoinRoomResponse, MakeRoomResponse, GetRoomInfoResponse, GetGameInfoResponse } from "./types";
 
 
 const firebaseConfig = {
@@ -38,6 +38,6 @@ const helloWorld = httpsCallable(functions, "helloWorld");
 const getRoomInfo = httpsCallable<unknown, GetRoomInfoResponse>(functions, "getRoomInfo");
 const leaveRoom = httpsCallable<unknown, { error: ErrorCode }>(functions, "leaveRoom");
 const startRoom = httpsCallable<unknown, { error: ErrorCode }>(functions, "startRoom");
-// const getGameInfo = httpsCallable<unknown, >(functions, "getGameInfo");
+const getGameInfo = httpsCallable<unknown, GetGameInfoResponse>(functions, "getGameInfo");
 
-export { db, makeRoom, joinRoom, helloWorld, getRoomInfo, leaveRoom, startRoom };
+export { db, makeRoom, joinRoom, helloWorld, getRoomInfo, leaveRoom, startRoom, getGameInfo };

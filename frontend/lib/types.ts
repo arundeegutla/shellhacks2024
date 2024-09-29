@@ -48,6 +48,10 @@ export type GameBoard =
     true_word?: string,
 };
 
+export interface UserGame {
+    id: number,
+    data: GameBoard
+}
 export type Round =
 {
     has_started: boolean,
@@ -55,8 +59,9 @@ export type Round =
     true_word: string,
     num_guesses_allowed: number,
     word_length: number,
-    games: { [key: string]: GameBoard },
+    games: UserGame[],
 };
+
 
 export interface RoomType {
     gameID: -1,
@@ -65,13 +70,14 @@ export interface RoomType {
 	roomCode: string,
 	listenDocumentID: string,
 	roundStarted: boolean,
-	roundCount: number
+	roundCount: number,
+    rounds: Round[]
 };
 
 export interface GetGameInfoResponse {
     error: ErrorCode,
-    roomData: 
-}
+    roomData: RoomType
+};
 
 export interface GetRoomInfoResponse {
     roomListener: string,
