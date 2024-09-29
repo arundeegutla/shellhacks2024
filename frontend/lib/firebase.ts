@@ -32,6 +32,7 @@ if (DEBUG) {
 
 
 
+
 const makeRoom = httpsCallable<unknown, MakeRoomResponse>(functions, "makeRoom");
 const joinRoom = httpsCallable<unknown, JoinRoomResponse>(functions, "joinRoom");
 const helloWorld = httpsCallable(functions, "helloWorld");

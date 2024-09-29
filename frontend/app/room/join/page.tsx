@@ -18,7 +18,9 @@ export default function Join() {
   const [roomCode, setRoomCode] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [joining, setJoining] = useState<boolean>(false);
+  const [joinStatus, setJoinStatus] = useState<'idle' | 'joining' | 'success' | 'error'>('idle');
   const inputRef = useRef<HTMLInputElement>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null)
 
   const changeName = (e: React.ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
@@ -46,24 +48,39 @@ export default function Join() {
     }
     try {
       setJoining(true);
-      const response = (await joinRoom({ roomCode, name })) as { data: JoinResponse };
-      setJoining(false);
+      setJoinStatus('joining');
+      setErrorMessage(null);
+
+      const joinPromise = joinRoom({ roomCode, name }) as Promise<{ data: JoinResponse }>;
+      const timerPromise = new Promise(resolve => setTimeout(resolve, 2000));
+
+      const [response] = await Promise.all([joinPromise, timerPromise]);
+
       if (response.data === undefined || response.data.error === undefined) {
         console.error("response to joinRoom undefined");
+        setJoinStatus('error');
         return;
       }
       if (response.data.error !== ErrorCode.noError) {
         setErrorMessage(getErrorMessage(response.data.error));
+        setJoinStatus('error');
         return;
       }
-      setErrorMessage(null);
+
       const { userID, roomListener } = response.data;
       if (userID && roomListener) {
         localStorage.setItem(roomCode, JSON.stringify({ userID, roomListener, name }));
-        router.push(`/room/lobby?roomCode=${roomCode}`);
+        setJoinStatus('success');
+        // Delay navigation to show success state
+        setTimeout(() => {
+          router.push(`/room/lobby?roomCode=${roomCode}`);
+        }, 1000);
       }
     } catch (err) {
       console.error(err);
+      setErrorMessage("An error occurred while joining the room.");
+      setJoinStatus('error');
+    } finally {
       setJoining(false);
     }
   };
@@ -74,42 +91,69 @@ export default function Join() {
     }
   }, []);
 
+  const getBlockColor = () => {
+    switch (joinStatus) {
+      case 'joining':
+        return 'bg-yellow-500';
+      case 'success':
+        return 'bg-green-500';
+      default:
+        return 'bg-white/15';
+    }
+  };
+
   return (
     <div className="m-auto w-full h-full flex flex-col items-center justify-center">
       <div className="w-full h-full flex flex-col items-center justify-center mt-20">
-        <TextField
-          variant="outlined"
-          label="Enter a Name"
-          required
-          value={name}
-          onChange={changeName}
-          error={!validateName(name)}
-          helperText={getNameHelperText(name)}
-          className="mb-4 w-64"
-        />
+        <h1 className="text-4xl font-semibold">Join a Room</h1>
+        <div className=" flex flex-col items-start justify-start">
 
-        <div className="relative mb-4">
-          <div className="grid grid-cols-6 gap-1" role="grid" aria-label="Room code input">
-            {Array.from({ length: 6 }).map((_, index) => (
-              <div
-                key={index}
-                className={`w-20 h-20 flex items-center justify-center rounded-sm text-3xl font-bold bg-white/15 text-white`}
-                role="cell"
-              >
-                {roomCode[index] || ''}
-              </div>
-            ))}
+          <div className="mb-4 w-64 relative w">
+            <a className="text-sm">Name</a>
+            <input
+              ref={nameInputRef}
+              type="text"
+              id="name-input"
+              value={name}
+              onChange={changeName}
+              className={`w-full px-4 py-2 bg-white/15 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 ${!validateName(name) ? 'border-red-500' : ''
+                }`}
+              placeholder="Enter a Name"
+              required
+              aria-invalid={!validateName(name)}
+              aria-describedby="name-error"
+            />
+            {!validateName(name) && (
+              <p id="name-error" className="mt-1 text-sm text-red-500">
+                {getNameHelperText(name)}
+              </p>
+            )}
           </div>
-          <input
-            ref={inputRef}
-            type="text"
-            className="absolute opacity-0 top-0 left-0 w-full h-full"
-            onKeyDown={handleKeyDown}
-            autoComplete="off"
-          />
-        </div>
 
-        {errorMessage && <ErrorMessage error={errorMessage} />}
+          <div className="relative mb-4">
+            <a className="text-sm">Code</a>
+            <div className="grid grid-cols-6 gap-1" role="grid" aria-label="Room code input">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <div
+                  key={index}
+                  className={`w-20 h-20 flex items-center justify-center rounded-sm text-3xl font-bold text-white
+                  ${joining ? 'animate-flip' : ''} ${getBlockColor()}`}
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                  role="cell"
+                >
+                  {roomCode[index] || ''}
+                </div>
+              ))}
+            </div>
+            <input
+              ref={inputRef}
+              type="text"
+              className="absolute opacity-0 top-0 left-0 w-full h-full"
+              onKeyDown={handleKeyDown}
+              autoComplete="off"
+            />
+          </div>
+        </div>
 
         <button
           onClick={goToRoom}
@@ -121,7 +165,9 @@ export default function Join() {
         >
           {joining ? "Joining..." : "Join"}
         </button>
+        {errorMessage && <ErrorMessage error={errorMessage} />}
       </div>
+
     </div>
   );
 }

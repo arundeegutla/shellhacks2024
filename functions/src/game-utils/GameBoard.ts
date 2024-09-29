@@ -16,12 +16,20 @@ export type GameBoard =
 {
     rows: Row[],
     guesses_left: number, 
+    lie_cell?: Liar,
+    is_done: boolean,
     
     // game constants
     num_guesses: number,
     word_length: number,
     time_started: number,
     true_word?: string,
+};
+
+export type Liar = {
+    row_index: number,      // the row index (which guess that the lie is in)
+    verdict_index: number,  // the col index (which character of the word the lie is on)
+    true_verdict: Verdict,  // the original verdict, before the lie replaced it
 };
 
 export function createDefaultBoard(num_guesses: number, word_length: number): GameBoard
@@ -36,5 +44,6 @@ export function createDefaultBoard(num_guesses: number, word_length: number): Ga
         time_started: Date.now(),
         num_guesses: num_guesses,
         word_length: word_length,
+        is_done: false,
     };
 }
