@@ -8,7 +8,6 @@ interface ErrorBoxProps {
 function ErrorMessage({ error }: ErrorBoxProps) {
   return (
     <Alert severity="error">
-      <AlertTitle>Error</AlertTitle>
       {error}
     </Alert>
   );
