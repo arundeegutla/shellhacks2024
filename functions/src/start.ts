@@ -49,13 +49,14 @@ export const startRoom = onCall(async (request: CallableRequest<StartRoomData>) 
     roomData.open = false;
     roomData.roundStarted = true;
     roomData.roundCount = 1;
+    roomData.hostID = userID;
     let otherUsers = [];
-    for(let i = 1; i < roomData.users.length; i++) {
-        otherUsers.push(roomData.users[i].userID);
+    for(let i = 0; i < roomData.users.length; i++) {
+        if (roomData.users[i].userID != roomData.hostID) otherUsers.push(roomData.users[i].userID);
     }
     await createRound(otherUsers, "0", roomCode, NUM_GUESSES, WORD_LENGTH);
-
     await rooms.doc(roomCode).set(roomData);
+
     updateListener(roomData.listenDocumentID, true);
 
     return result;

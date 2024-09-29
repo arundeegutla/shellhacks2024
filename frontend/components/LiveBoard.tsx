@@ -53,13 +53,9 @@ export default function LiveBoard({
   };
 
   const getLetterState = (letter: string, index: number, row: number) => {
-
     if (row >= currentRow || letter === '') return 'bg-black/50 border-2 border-white/10';
     if (solution[index] === letter) return 'bg-green-500 text-white';
-    if (solution.includes(letter)) {
-      console.log('YESLL', letter)
-      return 'bg-yellow-600 text-white';
-    }
+    if (solution.includes(letter)) return 'bg-yellow-600 text-white';
     return 'bg-white/15 text-white';
   };
 

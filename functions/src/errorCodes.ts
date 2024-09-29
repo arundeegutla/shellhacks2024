@@ -10,6 +10,9 @@ enum ErrorCode {
 	missingParameters = -8,
 	invalidAction = -9,
 	userNotHost = -10,
+	invalidWord = -11,
+	noGuessesLeft = -12,
+	gameAlreadyDone = -13,
 }
 
 export { ErrorCode };
