@@ -1,4 +1,4 @@
-export const DICTIONARY = ["aahed",
+export const DICTIONARY = new Set(["aahed",
     "aalii",
     "aapas",
     "aargh",
@@ -14852,4 +14852,4 @@ export const DICTIONARY = ["aahed",
     "zygal",
     "zygon",
     "zymes",
-    "zymic"];
+    "zymic"]);

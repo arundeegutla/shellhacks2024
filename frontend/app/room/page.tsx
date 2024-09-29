@@ -32,7 +32,7 @@ export default function Room() {
 
   const wordInputRef = useRef<HTMLInputElement>(null)
   const validateWord = (s: string) => {
-    return DICTIONARY.includes(s.toLowerCase());
+    return DICTIONARY.has(s.toLowerCase());
   }
 
   useEffect(() => {
@@ -157,11 +157,18 @@ export default function Room() {
 
   const submitSolve = async (s: string) => {
     if (!validateWord(s)) return;
+
     const obj = { room_code: roomId, word: s, user_id: userID!, round_id: (roundNum - 1).toString() };
     console.log("submitting my guess", obj);
-    const response = (await submitGuess(obj)).data;
-    console.log("my guess", response);
-  }
+
+    try {
+      const response = await submitGuess(obj);
+      console.log("my guess", response);
+    } catch (error) {
+      console.error("Error submitting guess:", error);
+    }
+  };
+
 
   const roundNum = room!.roundCount;
   const currentRound = room!.rounds[roundNum - 1];
@@ -208,7 +215,7 @@ export default function Room() {
                 }}>Submit</button>
             </>
           }
-          {!isHost && <LiveBoard guesses={guesses} submit={submitSolve} gameOver={gameOver} setGameOver={setGameOver} solution={currentRound.true_word} />}
+          {!isHost && <LiveBoard submit={submitSolve} guesses={guesses} gameOver={gameOver} setGameOver={setGameOver} solution={currentRound.true_word} />}
         </div>
         <div className='flex flex-col gap-1 mr-auto w-[33%] pl-16'>
           {others.map((player, i) => {
