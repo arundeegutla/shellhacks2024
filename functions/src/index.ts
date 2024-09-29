@@ -51,6 +51,7 @@ import { getRoomInfo, getGameInfo } from "./room";
 import { leaveRoom } from "./leave";
 import { startRoom } from "./start";
 import { submitGuess, submitSecretWord, initiateRound } from "./endpoints/endpoints";
+import { endTurn } from "./game-utils/scoring";
 
 export { 
     makeRoom, 
@@ -61,5 +62,6 @@ export {
     submitSecretWord, 
     startRoom, 
     getGameInfo,
-    initiateRound
+    initiateRound,
+    endTurn
 };
