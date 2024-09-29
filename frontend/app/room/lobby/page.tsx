@@ -1,7 +1,7 @@
 "use client";
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { db, getRoomInfo, leaveRoom } from '@/lib/firebase';
+import { db, getRoomInfo, leaveRoom, startRoom } from '@/lib/firebase';
 import { ErrorCode } from '@/lib/util';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { Backdrop, Button, Card, CardHeader, CircularProgress, IconButton, Typography } from '@mui/material';
@@ -114,6 +114,24 @@ export default function Room() {
         </Card>
     );
 
+    const canStartGame = isHost && userNames.length > 1;
+    const clickStartGame = async () => {
+        if (!canStartGame) return;
+        try {
+            setLoaded(false);
+            console.log({ roomCode, userID });
+            const response = (await startRoom({ roomCode, userID })).data;
+            setLoaded(true);
+            if (response === undefined || response.error === undefined || response.error !== ErrorCode.noError) {
+                console.log("error:" + response.error)
+                return;
+            }
+        } catch (err) {
+            console.error(err);
+            setLoaded(true);
+        }
+    };
+
     return (
         <div className="landing">
             <div style={{ position: "relative" }}>
@@ -121,8 +139,8 @@ export default function Room() {
                     <Typography variant="h3">Room Code: {roomCode}</Typography>
                     <Typography variant="h5">Players:</Typography>
                     {userList}
-                    {/* {isHost && <Button variant="contained" onClick={clickStartGame}
-                        disabled={!canStartGame} sx={{ marginTop: "1rem" }}>Start Game</Button>} */}
+                    {isHost && <Button variant="contained" onClick={clickStartGame}
+                        disabled={!canStartGame} sx={{ marginTop: "1rem" }}>Start Game</Button>}
                     {!isHost && <Typography variant="subtitle1" sx={{ marginTop: "1rem" }}>
                         Waiting for host to start the game...</Typography>}
                 </Card>

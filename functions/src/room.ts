@@ -60,7 +60,6 @@ export const getRoomInfo = onCall(async (request: CallableRequest<GetRoomInfoDat
 	}
 
 	// Check if room exists
-	console.log(userID);
 	let roomData = await getRoomData(roomCode);
 	if (roomData === undefined) {
 		result.error = ErrorCode.roomNotFound;
@@ -69,8 +68,6 @@ export const getRoomInfo = onCall(async (request: CallableRequest<GetRoomInfoDat
 
 	// Check if user exists
 	let userInRoom = false;
-	console.log(userID);
-	console.log(roomData);
 	for (let i = 0; i < roomData.users.length; i++) {
 		console.log(roomData.users[i].userID);
 		if (roomData.users[i].userID == userID) userInRoom = true;
@@ -92,6 +89,52 @@ export const getRoomInfo = onCall(async (request: CallableRequest<GetRoomInfoDat
 	for (let i = 0; i < roomData.users.length; i++) {
 		result.usersInRoom.push(roomData.users[i].name);
 	}
+
+	return result;
+});
+
+export const getGameInfo = onCall(async (request: CallableRequest<GetRoomInfoData>) => {
+	const roomCode = request.data.roomCode;
+	const userID = request.data.userID;
+	let result = {
+		error: ErrorCode.noError,
+		roomData: undefined as any
+	}
+
+	// Check if parameters exist
+	if (roomCode === undefined || userID === undefined) {
+		result.error = ErrorCode.missingParameters;
+		return result;
+	}
+
+	// Check if room exists
+	let roomData = await getRoomData(roomCode);
+	if (roomData === undefined) {
+		result.error = ErrorCode.roomNotFound;
+		return result;
+	}
+
+	// Check if user exists
+	let userInRoom = false;
+	for (let i = 0; i < roomData.users.length; i++) {
+		if (roomData.users[i].userID == userID) userInRoom = true;
+	}
+
+	if (!userInRoom) {
+		result.error = ErrorCode.userNotFound;
+		return result;
+	}
+
+	const roundCount = roomData.roundCount;
+	roomData.rounds = [];
+
+	for(let i = 0; i < roundCount; i++) {
+		const usersSnapshot = await rooms.doc(roomCode).collection("rounds").doc(i.toString()).collection("users").get();
+		const usersCollection = usersSnapshot.docs.map(doc => ({id: doc.id, data: doc.data()}));
+		roomData.rounds.push(usersCollection);
+	}
+
+	result.roomData = roomData;
 
 	return result;
 });
