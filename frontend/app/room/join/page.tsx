@@ -8,68 +8,99 @@ import { useRouter } from "next/navigation";
 // import "../styles.css";
 
 export default function Join() {
-    const router = useRouter();
-    const [name, setName] = useState(randomName());
-    const [roomCode, setRoomCode] = useState("");
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const [joining, setJoining] = useState(false);
-    
-    const changeName = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setName(e.target.value);
+  const router = useRouter();
+  const [name, setName] = useState(randomName());
+  const [roomCode, setRoomCode] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [joining, setJoining] = useState(false);
+  const [curCode, setCurCode] = useState('');
+
+
+  const changeName = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setName(e.target.value);
+  }
+  const changeRoomCode = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setRoomCode(e.target.value.toUpperCase());
+  }
+  const canJoin = validateName(name) && validateRoomCode(roomCode);
+
+  const goToRoom = async () => {
+    if (!canJoin || joining) return;
+    if (localStorage.getItem(roomCode) !== null) {
+      setErrorMessage("You have already joined the room.");
+      return;
     }
-    const changeRoomCode = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setRoomCode(e.target.value.toUpperCase());
+    try {
+      setJoining(true);
+      const response = (await joinRoom({ roomCode, name })).data;
+      setJoining(false);
+      if (response === undefined || response.error === undefined) {
+        console.error("response to joinRoom undefined");
+        return;
+      }
+      if (response.error != ErrorCode.noError) {
+        setErrorMessage(getErrorMessage(response.error));
+        return;
+      }
+      setErrorMessage(null);
+      console.log(response);
+      const { userID, roomListener } = response;
+      console.log(userID, roomListener);
+      localStorage.setItem(roomCode, JSON.stringify({ userID, roomListener, name }));
+      router.push(`/room/lobby?roomCode=${roomCode}`);
+    } catch (err) {
+      console.error(err);
     }
-    const canJoin = validateName(name) && validateRoomCode(roomCode);
-    const goToRoom = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        if (!canJoin || joining) return;
-        if (localStorage.getItem(roomCode) !== null) {
-            setErrorMessage("You have already joined the room.");
-            return;
-        }
-        let response;
-        try {
-            setJoining(true);
-            const response = (await joinRoom({ roomCode, name })).data;
-            setJoining(false);
-            if (response === undefined || response.error === undefined) {
-                console.error("response to joinRoom undefined");
-                return;
-            }
-            if (response.error != ErrorCode.noError) {
-                setErrorMessage(getErrorMessage(response.error));
-                return;
-            }
-            setErrorMessage(null);
-            console.log(response);
-            const { userID, roomListener } = response;
-            console.log(userID, roomListener);
-            localStorage.setItem(roomCode, JSON.stringify({ userID, roomListener, name }));
-            router.push(`/room/lobby?roomCode=${roomCode}`);
-        } catch (err) {
-            console.error(err);
-        }
-    };
-    return (
-        <form className="landing" onSubmit={goToRoom}>
-            <TextField variant="outlined" label="Enter a Name" required
-                value={name}
-                onChange={changeName}
-                error={!validateName(name)}
-                helperText={getNameHelperText(name)} />
-            <div style={{ height: "1rem" }} />
-            <TextField variant="outlined" label="Enter Room Code" required
-                value={roomCode}
-                onChange={changeRoomCode}
-                error={!validateRoomCode(roomCode)}
-                helperText={getRoomCodeHelperText(roomCode)} />
-            {errorMessage !== null && <ErrorMessage error={errorMessage} />}
-            <div className="button-row">
-                <Button variant="contained" disabled={!canJoin} type="submit" 
-                sx={{ marginTop: "1rem" }} startIcon={joining ? <CircularProgress size={20} color="inherit"/> : null}>
-                    {joining ? "Joining" : "Join"} Room</Button>
-            </div>
-        </form>
-    );
+  };
+
+
+  const handleKeyPress = (key: string) => {
+    if (key === 'ENTER') {
+      if (curCode.length === 6) {
+        goToRoom();
+      }
+    } else if (key === 'BACKSPACE') {
+      setCurCode(prev => prev.slice(0, -1));
+    } else if (curCode.length < 6) {
+      setCurCode(prev => prev + key);
+    }
+  };
+
+
+  return (
+    <div className="m-auto w-full h-full flex flex-col items-center justify-center">
+      <div className="w-full h-full flex flex-col items-center justify-center mt-20">
+
+        <TextField variant="outlined" label="Enter a Name" required
+          value={name}
+          onChange={changeName}
+          error={!validateName(name)}
+          helperText={getNameHelperText(name)} className="animated animatedFadeInUp fadeInUp" />
+        <div style={{ height: "1rem", color: "white" }} />
+
+        <div className="grid grid-rows-1 gap-1 mb-4" role="grid" aria-label="Wordle game board">
+          <div className="flex gap-1" role="row">
+            {Array.from({ length: 6 }).map((_, colIndex) => (
+              <div
+                key={colIndex}
+                className={`w-20 h-20 flex items-center justify-center rounded-sm text-3xl font-bold bg-white/15 text-white`}
+                role="cell"
+              >
+                {curCode[colIndex] ?? ''}
+              </div>
+            ))}
+          </div>
+        </div>
+
+
+        {errorMessage !== null && <ErrorMessage error={errorMessage} />}
+
+
+        <button disabled={!canJoin} className="px-6 py-2 bg-green-500/30 border-2 border-green-600 text-white font-bold rounded-lg shadow-lg hover:bg-green-600 transition-colors">
+          {joining ? "Joining" : "Join"}
+        </button>
+      </div>
+
+    </div>
+  );
 };

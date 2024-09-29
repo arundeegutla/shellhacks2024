@@ -68,7 +68,7 @@ export default function Create() {
                 value={name}
                 onChange={changeName}
                 error={error}
-                helperText={getNameHelperText(name)} />
+                helperText={getNameHelperText(name)} className="animated animatedFadeInUp fadeInUp" />
             {errorMessage !== null && <ErrorMessage error={errorMessage} />}
             <div className="button-row">
                 <Button variant="contained" disabled={error} type="submit" sx={{ marginTop: "1rem" }}

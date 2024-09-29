@@ -26,19 +26,103 @@ body {
 }
 
 
-/* Add this to your CSS file (e.g., styles.css or globals.css) */
 @keyframes flip {
-  0% {
-    transform: rotateX(0deg);
+  0%, 100% { transform: rotateX(0deg); }
+  50% { transform: rotateX(90deg); }
+}
+
+.animate-flip {
+  animation: flip 0.5s;
+}
+
+
+/* Animation */
+
+@keyframes fadeInUp {
+  from {
+    transform: translate3d(0, 40px, 0);
   }
-  50% {
-    transform: rotateX(180deg);
-  }
-  100% {
-    transform: rotateX(0deg);
+
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
   }
 }
 
-.flip {
-  animation: flip 0.6s ease forwards; /* Adjust duration and easing as desired */
+@-webkit-keyframes fadeInUp {
+  from {
+    transform: translate3d(0, 40px, 0);
+  }
+
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+.animated {
+  animation-duration: 0.5s;
+  animation-fill-mode: both;
+  -webkit-animation-duration: 0.5s;
+  -webkit-animation-fill-mode: both;
+}
+
+.animatedFadeInUp {
+  opacity: 0;
+}
+
+.fadeInUp {
+  opacity: 0;
+  animation-name: fadeInUp;
+  -webkit-animation-name: fadeInUp;
+}
+
+.animation {
+  height: 50px;
+  overflow: hidden;
+  margin-left: 1rem;
+}
+
+.animation > div > div {
+  padding: 0.25rem 0.75rem;
+  height: 2.81rem;
+  margin-bottom: 2.81rem;
+  display: inline-block;
+}
+
+.animation div:first-child {
+  animation: text-animation 8s infinite;
+}
+
+@keyframes text-animation {
+  0% {
+    margin-top: 0;
+  }
+  10% {
+    margin-top: 0;
+  }
+  20% {
+    margin-top: -5.62rem;
+  }
+  30% {
+    margin-top: -5.62rem;
+  }
+  40% {
+    margin-top: -11.24rem;
+  }
+  60% {
+    margin-top: -11.24rem;
+  }
+  70% {
+    margin-top: -5.62rem;
+  }
+  80% {
+    margin-top: -5.62rem;
+  }
+  90% {
+    margin-top: 0;
+  }
+  100% {
+    margin-top: 0;
+  }
 }
