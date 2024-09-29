@@ -2,6 +2,7 @@ import { isWordValid } from "./checkWordValidity";
 import { GameBoard, Verdict } from "../game-utils/GameBoard";
 import { getGameBoard, getTrueWord, setGameBoard } from "../firebase-utils/firebaseCalls";
 import { logger } from "firebase-functions/v2";
+import { IMPOSTER_ACHIEVED } from "../vars";
 
 export async function guessWord(word: string, userId: string, roundId: string, roomId: string)
 {
@@ -14,6 +15,9 @@ export async function guessWord(word: string, userId: string, roundId: string, r
     const gameState = await getGameBoard(userId, roundId, roomId);
     if(gameState.guesses_left <= 0) {
         logger.error(`User ${userId} trying to guess with no more guesses left`);
+        return;
+    } else if(gameState.is_done) {
+        logger.error(`User ${userId} submitted guess, but has a finished board`);
         return;
     }
     
@@ -32,7 +36,7 @@ function updateStateWithGuess(wordGuess: string, trueWord: string, gameBoard: Ga
     gameBoard.guesses_left--;
     gameBoard.rows[NUM_GUESS].guess = wordGuess;
 
-    // populate
+    // populate verdicts
     const trueWordArray = [...trueWord];
     [...wordGuess].forEach((char, index) => {
         if (char === trueWordArray[index]) {
@@ -52,4 +56,31 @@ function updateStateWithGuess(wordGuess: string, trueWord: string, gameBoard: Ga
             }
         }
     });
+
+    // checks for "done" state
+    if(wordGuess === trueWord || gameBoard.guesses_left <= 0)
+    {
+        gameBoard.is_done = true;
+    }
+
+    // attempt to lie
+    if(!gameBoard.is_done && gameBoard.lie_cell === undefined && IMPOSTER_ACHIEVED)
+    {
+        const imposterProbability = 0.5;
+        if(Math.random() >= imposterProbability || gameBoard.guesses_left === 1)
+        {
+            const liarIndex = Math.floor(Math.random() * gameBoard.word_length);
+            const oldVerdict = gameBoard.rows[NUM_GUESS].verdicts[liarIndex];
+            const randomOffset = Math.floor(Math.random() * 2 + 1);
+            const newVerdict = (((oldVerdict + randomOffset - 1) % 3) + 1);
+
+            // update with the lie
+            gameBoard.rows[NUM_GUESS].verdicts[liarIndex] = newVerdict;
+            gameBoard.lie_cell = {
+                row_index: NUM_GUESS,
+                verdict_index: liarIndex,
+                true_verdict: oldVerdict
+            };
+        }
+    }
 }
