@@ -1,6 +1,6 @@
 import { logger } from "firebase-functions/v2";
 import { createRound, getGameBoard, getTrueWord, setTrueWordAndTriggerRound } from "./firebase-utils/firebaseCalls";
-import { guessWord } from "./word-utils.ts/wordGuessing";
+import { guessWord } from "./word-utils/wordGuessing";
 
 function assert(condition: boolean, msg?: string)
 {

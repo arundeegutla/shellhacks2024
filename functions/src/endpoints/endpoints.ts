@@ -1,7 +1,7 @@
 import { CallableRequest, onCall } from "firebase-functions/https";
 import { ErrorCode } from "../errorCodes";
 import { getRoomData } from "../room";
-import { guessWord } from "../word-utils.ts/wordGuessing";
+import { guessWord } from "../word-utils/wordGuessing";
 import { updateListener } from "../util";
 import { setTrueWordAndTriggerRound, createRound } from "../firebase-utils/firebaseCalls";
 import { RoomType } from "../game-utils/RoomType";
