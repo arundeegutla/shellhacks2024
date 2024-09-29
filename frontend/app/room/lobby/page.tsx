@@ -1,7 +1,7 @@
 "use client";
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { db, getRoomInfo, leaveRoom } from '@/lib/firebase';
+import { db, getRoomInfo, leaveRoom, startRoom } from '@/lib/firebase';
 import { ErrorCode } from '@/lib/util';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { Backdrop, Button, Card, CardHeader, CircularProgress, IconButton, Typography } from '@mui/material';
@@ -127,6 +127,44 @@ export default function Room() {
       console.error(err);
     }
   };
+    // Load data from local storage
+    useEffect(() => {
+        if (roomCode === null) {
+            router.replace('/');
+        }
+        const data = localStorage.getItem(roomCode!);
+        if (data !== null) {
+            const { userID, roomListener, name } = JSON.parse(data);
+            setUserID(userID);
+            setRoomListener(roomListener);
+            setName(name);
+            refreshRoomData();
+        } else {
+            router.replace("/");
+        }
+    }, [roomCode]);
+    useEffect(() => {
+        if (!roomCode) {
+            router.replace('/');
+        }
+    }, [roomCode, router]);
+
+    // Listen for changes in the room
+    useEffect(() => {
+        if (roomListener === null) return;
+        const unsubscribe = onSnapshot(doc(db, "listeners", roomListener), (doc) => {
+            const data = doc.data();
+            console.log(data);
+            const { counter, gameStarted } = (doc.data()) as { counter: number, gameStarted: boolean };
+            if (!gameStarted) {
+                refreshRoomData();
+            } else {
+                console.log("Game started");
+                router.replace(`/room?id=${roomCode}`);
+            }
+        });
+        return () => unsubscribe();
+    }, [roomListener]);
 
   const userList = userNames.map((user, i) =>
     <Card key={i} raised sx={{ display: "flex", }}>
@@ -147,19 +185,41 @@ export default function Room() {
     </Card>
   );
 
-  return (
-    <div className="landing">
-      <div style={{ position: "relative" }}>
-        <h1 className="text-4xl font-semibold my-5 text-center">Lobby</h1>
-
-        <a className="text-sm">Code</a>
-        <div className="grid grid-cols-6 gap-1" role="grid" aria-label="Room code input">
-          {roomCode && roomCode.split("").map((letter, idx) => (
-            <div key={idx} className="relative w-20 h-20 max-md:w-10 max-md:h-10">
-              <div className={`absolute w-full h-full transition-all duration-500 ${colors[flippedStates[idx].colorIndex]} rounded-md ${flippedStates[idx].isFlipped ? 'animate-flip' : ''}`} />
-              <div className="absolute w-full h-full flex items-center justify-center">
-                <span className="text-white text-3xl max-md:text-sm font-bold">{letter.toUpperCase()}</span>
-              </div>
+    const canStartGame = isHost && userNames.length > 1;
+    const clickStartGame = async () => {
+        if (!canStartGame) return;
+        try {
+            setLoaded(false);
+            console.log({ roomCode, userID });
+            const response = (await startRoom({ roomCode, userID })).data;
+            setLoaded(true);
+            if (response === undefined || response.error === undefined || response.error !== ErrorCode.noError) {
+                console.log("error:" + response.error)
+                return;
+            }
+        } catch (err) {
+            console.error(err);
+            setLoaded(true);
+        }
+    };
+    
+    return (
+        <div className="landing">
+            <div style={{ position: "relative" }}>
+              
+                <Card className="lobby" raised>
+                    <Typography variant="h3">Room Code: {roomCode}</Typography>
+                    <Typography variant="h5">Players:</Typography>
+                    {userList}
+                    {isHost && <Button variant="contained" onClick={clickStartGame}
+                        disabled={!canStartGame} sx={{ marginTop: "1rem" }}>Start Game</Button>}
+                    {!isHost && <Typography variant="subtitle1" sx={{ marginTop: "1rem" }}>
+                        Waiting for host to start the game...</Typography>}
+                </Card>
+                <Backdrop open={!loaded} sx={{ position: "absolute" }}>
+                    <CircularProgress color="inherit" />
+                </Backdrop>
+              
             </div>
           ))}
         </div>

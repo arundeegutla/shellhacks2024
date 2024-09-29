@@ -8,7 +8,8 @@ enum ErrorCode {
 	invalidHost = -6,
 	userNotFound = -7,
 	missingParameters = -8,
-	invalidAction = -9
+	invalidAction = -9,
+	userNotHost = -10,
 }
 
 export { ErrorCode };

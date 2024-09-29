@@ -5,6 +5,9 @@ import Link from 'next/link';
 import { MdOutlineTimer } from "react-icons/md";
 import KeyBoard from '@/components/KeyBoard';
 import MiniWordle from '@/components/MiniWordle';
+import { ErrorCode } from '@/lib/util';
+import { db, getGameInfo, getRoomInfo } from '@/lib/firebase';
+import { doc, onSnapshot } from 'firebase/firestore';
 import Leaderboard, { Player } from '@/components/Leaderboard';
 
 const WORD_LENGTH = 5;
@@ -79,12 +82,70 @@ export default function Room() {
   const searchParams = useSearchParams();
   const roomId = searchParams.get('id');
 
+  const [userID, setUserID] = useState<string | null>(null);
+  const [name, setName] = useState<string | null>(null);
+  const [roomListener, setRoomListener] = useState<string | null>(null);
+
   const [guesses, setGuesses] = useState<string[]>(Array(MAX_GUESSES).fill(''));
   const [currentGuess, setCurrentGuess] = useState('');
   const [currentRow, setCurrentRow] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [solution] = useState('REACT');
   const [timeLeft, setTimeLeft] = useState(10); // Timer starts at 3 minutes (180 seconds)
+
+  // Load data from local storage
+  useEffect(() => {
+    if (roomId === null) {
+      router.replace('/');
+    }
+    const data = localStorage.getItem(roomId!);
+    if (data !== null) {
+      const { userID, roomListener, name } = JSON.parse(data);
+      setUserID(userID);
+      setRoomListener(roomListener);
+      setName(name);
+      refreshRoomData();
+    } else {
+      router.replace("/");
+    }
+  }, [roomId]);
+
+  const refreshRoomData = async () => {
+    if (userID === null || roomListener === null) return;
+    let response;
+    try {
+      response = (await getRoomInfo({ roomId, userID })).data;
+    } catch (err) {
+      console.error(err);
+      return;
+    }
+    if (response === undefined || response.error === undefined || response.error !== ErrorCode.noError) {
+      console.log("error:" + response.error)
+      return;
+    }
+    const { roomListener: newRoomListener } = response;
+    setRoomListener(newRoomListener);
+  }
+
+  // Listen for changes in the room
+  useEffect(() => {
+    if (roomListener === null) return;
+    const unsubscribe = onSnapshot(doc(db, "listeners", roomListener), (doc) => {
+      const data = doc.data();
+      console.log(data);
+    });
+    return () => unsubscribe();
+  }, [roomListener]);
+
+  const updateGameInfo = async () => {
+    const response = (await getGameInfo({ roomId, userID })).data;
+    if (response.error !== ErrorCode.noError) {
+      console.error("Error getting game info");
+      return;
+    }
+    const roomData = response.roomData;
+    
+  };
 
   const submitGuess = () => {
     const newGuesses = [...guesses];
