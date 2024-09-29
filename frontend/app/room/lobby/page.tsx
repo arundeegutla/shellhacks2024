@@ -171,10 +171,10 @@ export default function Room() {
         <h1 className="text-5xl font-semibold mt-10">Lobby</h1>
         <div className="grid grid-cols-6 gap-1 mt-5" role="grid" aria-label="Room code input">
           {roomCode && roomCode.split("").map((letter, idx) => (
-            <div key={idx} className="relative w-20 h-20 max-md:w-10 max-md:h-10">
+            <div key={idx} className="relative w-20 h-20">
               <div className={`absolute w-full h-full transition-all duration-500 ${colors[flippedStates[idx].colorIndex]} rounded-md ${flippedStates[idx].isFlipped ? 'animate-flip' : ''}`} />
               <div className="absolute w-full h-full flex items-center justify-center">
-                <span className="text-white text-3xl max-md:text-sm font-bold">{letter.toUpperCase()}</span>
+                <span className="text-white text-3xl font-bold">{letter.toUpperCase()}</span>
               </div>
             </div>
           ))}

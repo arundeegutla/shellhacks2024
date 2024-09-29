@@ -69,7 +69,8 @@ export interface RoomType {
 	listenDocumentID: string,
 	roundStarted: boolean,
 	roundCount: number,
-    rounds: Round[]
+    rounds: Round[],
+    hostID: string
 };
 
 export interface GetGameInfoResponse {

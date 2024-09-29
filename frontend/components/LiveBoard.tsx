@@ -1,37 +1,47 @@
 import { useEffect, useState } from "react";
 import KeyBoard from "./KeyBoard";
+import { RoomType } from "@/lib/types";
+import { submitGuess } from "@/lib/firebase";
+import { DICTIONARY } from "@/lib/word";
 
 const WORD_LENGTH = 5;
 const MAX_GUESSES = 6;
 
 export default function LiveBoard({
   gameOver,
-  setGameOver
+  setGameOver,
+  solution,
+  submit,
+  guesses,
 }: {
   gameOver: boolean;
-  setGameOver: (x: boolean) => void
+  setGameOver: (x: boolean) => void;
+  solution: string;
+  submit: (s: string) => void;
+  guesses: string[];
 
 }) {
-  const [guesses, setGuesses] = useState<string[]>(Array(MAX_GUESSES).fill(''));
   const [currentGuess, setCurrentGuess] = useState('');
-  const [currentRow, setCurrentRow] = useState(0);
-  const submitGuess = () => {
-    const newGuesses = [...guesses];
-    newGuesses[currentRow] = currentGuess;
-    setGuesses(newGuesses);
+  const [currentRow, setCurrentRow] = useState(guesses.findIndex(str => str.length === 0));
+  setGameOver(guesses.some(str => str === solution))
+  const validateWord = (s: string) => {
+    return DICTIONARY.includes(s.toLowerCase());
+  }
+
+  const submitThisGuess = () => {
+    submit(currentGuess)
     setCurrentRow(prev => prev + 1);
     setCurrentGuess('');
-
-    //TODO...
     if (currentGuess === solution || currentRow === MAX_GUESSES - 1) {
       setGameOver(true);
     }
   };
 
+
   const handleKeyPress = (key: string) => {
     if (key === 'ENTER') {
-      if (currentGuess.length === WORD_LENGTH) {
-        submitGuess();
+      if (currentGuess.length === WORD_LENGTH && validateWord(currentGuess)) {
+        submitThisGuess();
       }
     } else if (key === 'BACKSPACE') {
       setCurrentGuess(prev => prev.slice(0, -1));
@@ -41,9 +51,18 @@ export default function LiveBoard({
   };
 
   const getLetterState = (letter: string, index: number, row: number) => {
+
+
+    // BLANK
+    console.log(letter, solution[index], row, currentRow)
     if (row >= currentRow) return 'bg-black/50 border-2 border-white/10';
-    if (solution[index] === letter) return 'bg-green-500 text-white';
+    // GREEN
+    if (solution[index] === letter) {
+      return 'bg-green-500 text-white';
+    }
+    // YELLOW
     if (solution.includes(letter)) return 'bg-yellow-600 text-white';
+    // DARK
     return 'bg-white/15 text-white';
   };
 
@@ -52,7 +71,7 @@ export default function LiveBoard({
       if (gameOver) return;
       if (e.key === 'Enter') {
         if (currentGuess.length === WORD_LENGTH) {
-          submitGuess();
+          submitThisGuess();
         }
       } else if (e.key === 'Backspace') {
         setCurrentGuess(prev => prev.slice(0, -1));
@@ -63,7 +82,7 @@ export default function LiveBoard({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentGuess, gameOver, submitGuess]);
+  }, [currentGuess, gameOver, submitThisGuess]);
 
   return (
     <>

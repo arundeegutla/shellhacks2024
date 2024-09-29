@@ -111,6 +111,7 @@ export default function Create() {
             {creating ? "Creating..." : "Create"}
           </button>
           {errorMessage && <ErrorMessage error={errorMessage} />}
+          {loading && <Loading className="h-28" />}
         </div>
 
       </div>

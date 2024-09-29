@@ -20,7 +20,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const functions = getFunctions(app);
 
-const DEBUG = true;
+const DEBUG = false;
 if (DEBUG) {
     connectFirestoreEmulator(db, 'localhost', 8080);
     connectFunctionsEmulator(functions, 'localhost', 5001);
@@ -41,5 +41,7 @@ const leaveRoom = httpsCallable<unknown, { error: ErrorCode }>(functions, "leave
 const startRoom = httpsCallable<unknown, { error: ErrorCode }>(functions, "startRoom");
 const getGameInfo = httpsCallable<unknown, GetGameInfoResponse>(functions, "getGameInfo");
 const submitSecretWord = httpsCallable<SubmitSecretWordInput, { error: ErrorCode }>(functions, "submitSecretWord");
+const submitGuess = httpsCallable<SubmitSecretWordInput, { error: ErrorCode }>(functions, "submitGuess");
 
-export { db, makeRoom, joinRoom, helloWorld, getRoomInfo, leaveRoom, startRoom, getGameInfo, submitSecretWord };
+
+export { db, makeRoom, joinRoom, helloWorld, getRoomInfo, leaveRoom, startRoom, getGameInfo, submitSecretWord, submitGuess };

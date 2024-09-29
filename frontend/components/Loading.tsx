@@ -1,9 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
+import { twMerge } from "tailwind-merge";
 
 const colors = ['bg-white/15', 'bg-yellow-500', 'bg-green-500',];
 
-export default function Loading() {
+export default function Loading({ className }: { className?: string }) {
   const [flippedStates, setFlippedStates] = useState(Array(4).fill({ isFlipped: false, colorIndex: 0 }));
   const [lastFlippedIndex, setLastFlippedIndex] = useState(-1);
 
@@ -36,7 +37,7 @@ export default function Loading() {
 
 
   return (
-    <div className="h-lvh w-full flex flex-row items-center justify-center">
+    <div className={twMerge("h-lvh w-full flex flex-row items-center justify-center", className)}>
       {Array.from({ length: 4 }).map((_, index) => (
         <div
           key={index}
