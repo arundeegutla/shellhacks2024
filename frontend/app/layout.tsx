@@ -3,6 +3,7 @@ import { Poppins } from 'next/font/google';
 
 import "./globals.css";
 import { Suspense } from "react";
+import NavBar from "@/components/NavBar";
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -41,6 +42,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${poppins.className}`}>
+        <NavBar />
         <Suspense>
           <main className="relative flex w-full flex-col items-center justify-center">
             {children}

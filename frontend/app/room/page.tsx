@@ -8,9 +8,21 @@ import MiniWordle from '@/components/MiniWordle';
 import { ErrorCode } from '@/lib/util';
 import { db, getGameInfo, getRoomInfo } from '@/lib/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
+import Leaderboard, { Player } from '@/components/Leaderboard';
 
 const WORD_LENGTH = 5;
 const MAX_GUESSES = 6;
+
+
+const players: Player[] = [
+  { score: 10, name: "Arun", isHost: true },
+  { score: 8, name: "Maya", isHost: false },
+  { score: 12, name: "Leo", isHost: false },
+  { score: 12, name: "Alex", isHost: false },
+  { score: 45, name: "Sachin", isHost: false },
+  { score: 34, name: "Chris", isHost: false }
+];
+
 
 const friends = [
   {
@@ -209,15 +221,17 @@ export default function Room() {
   const getLetterState = (letter: string, index: number, row: number) => {
     if (row >= currentRow) return 'bg-black/50 border-2 border-white/10';
     if (solution[index] === letter) return 'bg-green-500 text-white';
-    if (solution.includes(letter)) return 'bg-yellow-500 text-white';
+    if (solution.includes(letter)) return 'bg-yellow-600 text-white';
     return 'bg-white/15 text-white';
   };
 
   return (
     <div className="m-auto w-full">
-      Your Room ID is: <span className="font-bold">{roomId}</span>
-      <div className="flex flex-row items-center justify-evenly min-h-screen p-4 w-full">
-        <div className='flex flex-col items-center justify-center wordle'>
+      <div className="flex flex-row items-center min-h-screen p-4 w-full">
+        <div className='flex flex-row items-end justify-end pr-16 w-[33%]'>
+          <Leaderboard players={players} />
+        </div>
+        <div className='flex flex-col items-center justify-center wordle w-[34%]'>
           <div className='flex flex-row items-center justify-center rounded-lg bg-white/10 px-2 py-1 mb-6 font-medium  min-w-20 gap-1'>
             <MdOutlineTimer />
             {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
@@ -238,13 +252,8 @@ export default function Room() {
             ))}
           </div>
           <KeyBoard handleKeyPress={handleKeyPress} gameOver={gameOver} />
-          {gameOver && (
-            <div className="text-2xl font-bold">
-              {currentGuess === solution ? 'Congratulations!' : `Game Over! The word was ${solution}`}
-            </div>
-          )}
         </div>
-        <div className='flex flex-col gap-1'>
+        <div className='flex flex-col gap-1 mr-auto w-[33%] pl-16'>
           {friends.map((m, i) => {
             return <MiniWordle key={i} ansKey={m.ansKey} guesses={m.guesses} name={m.name} timeLeft={timeLeft} />
           })}
