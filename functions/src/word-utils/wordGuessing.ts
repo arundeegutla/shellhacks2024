@@ -8,7 +8,8 @@ export async function guessWord(word: string, userId: string, roundId: string, r
 {
     // check word
     if(!isWordValid(word)) {
-        throw Error(`User ${userId} guessed invalid word ${word}`);
+        logger.error(`User [${userId}] guessed invalid word [${word}]`);
+        return;
     } 
     
     // get previous state
@@ -27,7 +28,7 @@ export async function guessWord(word: string, userId: string, roundId: string, r
         logger.error(`error in guessWord(). No secret word has been submitted.`);
         return;
     }
-    updateStateWithGuess(word, gameState.true_word as string, gameState);
+    updateStateWithGuess(word.toUpperCase(), gameState.true_word.toUpperCase(), gameState);
 
     // update state in firestore 
     await setGameBoard(gameState, userId, roundId, roomId);
