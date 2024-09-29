@@ -40,5 +40,15 @@ import { joinRoom } from "./join";
 import { getRoomInfo, getGameInfo } from "./room";
 import { leaveRoom } from "./leave";
 import { startRoom } from "./start";
+import { submitGuess, submitSecretWord } from "./endpoints/endpoints";
 
-export { makeRoom, joinRoom, getRoomInfo, leaveRoom, startRoom, getGameInfo };
+export { 
+    makeRoom, 
+    joinRoom, 
+    getRoomInfo, 
+    leaveRoom, 
+    submitGuess, 
+    submitSecretWord, 
+    startRoom, 
+    getGameInfo 
+};
