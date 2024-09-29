@@ -1,4 +1,6 @@
 const nameRegex = /^(([a-zA-Z0-9]([a-zA-Z0-9 ]{0,8})[a-zA-Z0-9])|[a-zA-Z0-9])$/;
+export const NAME = "Wordlify"
+
 
 function validateName(name: string) {
     return nameRegex.test(name);
