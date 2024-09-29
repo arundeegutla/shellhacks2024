@@ -158,19 +158,19 @@ export default function Room() {
     const roundNum = roomData!.roundCount;
     const currentRound = roomData!.rounds[roundNum - 1];
     // set previous guesses from current game
-    // const currentGame = currentRound.games.find(g => roomData!.users[g.id].userID === userID);
-    // if (!currentGame) {
-    //   console.error("Current game not found");
-    // } else {
-    //   // fill in previous guesses
-    //   console.log(userID, currentGame);
-    //   let newGuesses = [...guesses];
-    //   for (let i = 0; i < currentGame!.data.rows.length; i++) {
-    //     let g = currentGame!.data.rows[i].guess;
-    //     newGuesses[i] = g ?? '';
-    //   }
-    //   setGuesses(newGuesses);
-    // }
+    const currentGame = currentRound.games.find(g => g.id === userID);
+    if (!currentGame) {
+      console.error("Current game not found");
+    } else {
+      // fill in previous guesses
+      console.log(userID, currentGame);
+      let newGuesses = [...guesses];
+      for (let i = 0; i < currentGame!.data.rows.length; i++) {
+        let g = currentGame!.data.rows[i].guess;
+        newGuesses[i] = g ?? '';
+      }
+      setGuesses(newGuesses);
+    }
     setRoom(roomData);
     setLoaded(true);
   };
