@@ -1,7 +1,5 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import KeyBoard from "./KeyBoard";
-import { RoomType } from "@/lib/types";
-import { submitGuess } from "@/lib/firebase";
 import { DICTIONARY } from "@/lib/word";
 
 const WORD_LENGTH = 5;
@@ -11,58 +9,57 @@ export default function LiveBoard({
   gameOver,
   setGameOver,
   solution,
-  submit,
   guesses,
+  submit
 }: {
   gameOver: boolean;
-  setGameOver: (x: boolean) => void;
+  setGameOver: (x: boolean) => void
   solution: string;
-  submit: (s: string) => void;
   guesses: string[];
-
+  submit: (s: string) => void
 }) {
   const [currentGuess, setCurrentGuess] = useState('');
   const [currentRow, setCurrentRow] = useState(guesses.findIndex(str => str.length === 0));
-  setGameOver(guesses.some(str => str === solution))
+
+  useEffect(() => {
+    setGameOver(guesses.some(str => str === solution));
+    setCurrentGuess('')
+    setCurrentRow(guesses.findIndex(str => str.length === 0))
+  }, [guesses, setGameOver, solution]);
+
   const validateWord = (s: string) => {
-    return DICTIONARY.includes(s.toLowerCase());
+    return DICTIONARY.has(s.toLowerCase());
   }
 
-  const submitThisGuess = () => {
+  const submitGuess = useCallback(() => {
+    if (!validateWord(currentGuess)) return;
     submit(currentGuess)
-    setCurrentRow(prev => prev + 1);
-    setCurrentGuess('');
     if (currentGuess === solution || currentRow === MAX_GUESSES - 1) {
       setGameOver(true);
     }
-  };
 
+  }, [currentGuess, currentRow, setGameOver, solution, submit]);
 
   const handleKeyPress = (key: string) => {
     if (key === 'ENTER') {
-      if (currentGuess.length === WORD_LENGTH && validateWord(currentGuess)) {
-        submitThisGuess();
+      if (currentGuess.length === WORD_LENGTH) {
+        submitGuess();
       }
     } else if (key === 'BACKSPACE') {
       setCurrentGuess(prev => prev.slice(0, -1));
-    } else if (currentGuess.length < WORD_LENGTH) {
-      setCurrentGuess(prev => prev + key);
+    } else if (/^[A-Za-z]$/.test(key) && currentGuess.length < WORD_LENGTH) {
+      setCurrentGuess(prev => prev + key.toUpperCase());
     }
   };
 
   const getLetterState = (letter: string, index: number, row: number) => {
 
-
-    // BLANK
-    console.log(letter, solution[index], row, currentRow)
-    if (row >= currentRow) return 'bg-black/50 border-2 border-white/10';
-    // GREEN
-    if (solution[index] === letter) {
-      return 'bg-green-500 text-white';
+    if (row >= currentRow || letter === '') return 'bg-black/50 border-2 border-white/10';
+    if (solution[index] === letter) return 'bg-green-500 text-white';
+    if (solution.includes(letter)) {
+      console.log('YESLL', letter)
+      return 'bg-yellow-600 text-white';
     }
-    // YELLOW
-    if (solution.includes(letter)) return 'bg-yellow-600 text-white';
-    // DARK
     return 'bg-white/15 text-white';
   };
 
@@ -71,7 +68,8 @@ export default function LiveBoard({
       if (gameOver) return;
       if (e.key === 'Enter') {
         if (currentGuess.length === WORD_LENGTH) {
-          submitThisGuess();
+          console.log("FDKJFKDJF")
+          submitGuess();
         }
       } else if (e.key === 'Backspace') {
         setCurrentGuess(prev => prev.slice(0, -1));
@@ -82,7 +80,7 @@ export default function LiveBoard({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentGuess, gameOver, submitThisGuess]);
+  }, [currentGuess, gameOver, submitGuess]);
 
   return (
     <>
