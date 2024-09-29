@@ -137,7 +137,7 @@ export default function Join() {
                 <div
                   key={index}
                   className={`w-20 h-20 flex items-center justify-center rounded-sm text-3xl font-bold text-white
-                  ${joining ? 'animate-flip' : ''} ${getBlockColor()}`}
+                  ${joining ? 'animate-flip2' : ''} ${getBlockColor()}`}
                   style={{ animationDelay: `${index * 0.1}s` }}
                   role="cell"
                 >

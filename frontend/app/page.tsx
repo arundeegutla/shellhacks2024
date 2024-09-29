@@ -4,11 +4,19 @@ import { NAME } from "@/lib/util";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
-const colors = ['bg-yellow-500', 'bg-green-500', 'bg-gray-500'];
+const colors = ['bg-white/15', 'bg-yellow-500', 'bg-green-500',];
 
 export default function Home() {
   const [flippedStates, setFlippedStates] = useState(Array(NAME.length).fill({ isFlipped: false, colorIndex: 0 }));
   const [lastFlippedIndex, setLastFlippedIndex] = useState(-1);
+
+  const getRandomColorIndex = (currentIndex: number) => {
+    let newIndex;
+    do {
+      newIndex = Math.floor(Math.random() * colors.length);
+    } while (newIndex === currentIndex);
+    return newIndex;
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -20,7 +28,7 @@ export default function Home() {
       setFlippedStates(prevStates =>
         prevStates.map((state, idx) =>
           idx === indexToFlip
-            ? { isFlipped: true, colorIndex: (state.colorIndex + (Math.floor(Math.random() * colors.length))) % colors.length }
+            ? { isFlipped: true, colorIndex: getRandomColorIndex(state.colorIndex) }
             : { isFlipped: false, colorIndex: (state.colorIndex + 0) % colors.length }
         )
       );
