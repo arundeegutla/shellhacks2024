@@ -24,7 +24,7 @@ export default function Room() {
   const [name, setName] = useState<string | null>(null);
   const [roomListener, setRoomListener] = useState<string | null>(null);
   const [gameOver, setGameOver] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(1000000); // Timer starts at 3 minutes (180 seconds)
+  const [timeLeft, setTimeLeft] = useState(180);
   const [room, setRoom] = useState<RoomType | null>(null);
   const [isHost, setIsHost] = useState<boolean>(false);
   const [pickWord, setPickWord] = useState<string>('');
@@ -188,7 +188,8 @@ export default function Room() {
   }
 
   const moveNextRount = async () => {
-    await initiateRound();
+    const obj = { room_code: roomId, user_id: userID! };
+    await initiateRound(obj);
     setShowPopup(false)
   };
 
