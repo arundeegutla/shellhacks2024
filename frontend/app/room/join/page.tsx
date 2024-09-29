@@ -108,6 +108,30 @@ export default function Join() {
         <h1 className="text-4xl font-semibold">Join a Room</h1>
         <div className=" flex flex-col items-start justify-start">
 
+          <div className="relative mb-4">
+            <a className="text-sm">Code</a>
+            <div className="grid grid-cols-6 gap-1" role="grid" aria-label="Room code input">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <div
+                  key={index}
+                  className={`w-20 h-20 flex items-center justify-center rounded-lg text-3xl font-bold text-white
+                  ${joining ? 'animate-flip2' : ''} ${getBlockColor()}`}
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                  role="cell"
+                >
+                  {roomCode[index] || ''}
+                </div>
+              ))}
+            </div>
+            <input
+              ref={inputRef}
+              type="text"
+              className="absolute opacity-0 top-0 left-0 w-full h-full"
+              onKeyDown={handleKeyDown}
+              autoComplete="off"
+            />
+          </div>
+
           <div className="mb-4 w-64 relative w">
             <a className="text-sm">Name</a>
             <input
@@ -130,29 +154,7 @@ export default function Join() {
             )}
           </div>
 
-          <div className="relative mb-4">
-            <a className="text-sm">Code</a>
-            <div className="grid grid-cols-6 gap-1" role="grid" aria-label="Room code input">
-              {Array.from({ length: 6 }).map((_, index) => (
-                <div
-                  key={index}
-                  className={`w-20 h-20 flex items-center justify-center rounded-sm text-3xl font-bold text-white
-                  ${joining ? 'animate-flip2' : ''} ${getBlockColor()}`}
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                  role="cell"
-                >
-                  {roomCode[index] || ''}
-                </div>
-              ))}
-            </div>
-            <input
-              ref={inputRef}
-              type="text"
-              className="absolute opacity-0 top-0 left-0 w-full h-full"
-              onKeyDown={handleKeyDown}
-              autoComplete="off"
-            />
-          </div>
+
         </div>
 
         <button

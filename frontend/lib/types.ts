@@ -17,6 +17,7 @@ export interface UserType {
     userID: string,
     playerID: number,
     roomCode: string
+    points: number;
 };
 
 export enum Verdict
@@ -37,8 +38,8 @@ export type GameBoard =
 {
     rows: Row[],
     guesses_left: number, 
-    
-    // game constants
+    is_done: boolean,
+    // game constants   
     num_guesses: number,
     word_length: number,
     time_started: number,
@@ -51,8 +52,9 @@ export interface UserGame {
 }
 
 export type Round =
-{
+{   
     has_started: boolean,
+    has_finished: boolean,
     time_started: number,
     true_word: string,
     num_guesses_allowed: number,
@@ -92,3 +94,9 @@ export interface SubmitSecretWordInput {
     round_id: string,
     room_code: string,
 }
+
+export interface InitiateRoundProps {
+    user_id: string,
+    room_code: string,
+}
+

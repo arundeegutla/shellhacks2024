@@ -16,13 +16,13 @@ const getLetterState = (index: number, row: number, ansKey: number[][]) => {
   return 'bg-white/15 text-white';
 };
 
-export default function KeyBoard({
-  name, guesses, ansKey, timeLeft
+export default function Mini({
+  name, guesses, ansKey, is_done
 }: {
   name: string;
   guesses: string[];
   ansKey: number[][];
-  timeLeft: number;
+  is_done: boolean
 }) {
 
   const overlay = () => {
@@ -34,7 +34,7 @@ export default function KeyBoard({
         <FaCheckCircle className={`text-green-500 text-xl`} />
       </div>
     }
-    if (timeLeft == 0) {
+    if (is_done) {
       return <div className="absolute top-0 w-full h-full flex flex-row items-center justify-center  text-red-200/90 border-2 border-red-600/50 rounded-sm backdrop-brightness-[.3]">
         {/* <div className="absolute w-full h-full flex flex-row items-center justify-center bg-green-400/15 text-green-800 blur-3xl"></div> */}
         <MdCancel className={`text-red-500 text-2xl`} />
@@ -52,7 +52,7 @@ export default function KeyBoard({
           {Array.from({ length: WORD_LENGTH }).map((_, colIndex) => (
             <div
               key={colIndex}
-              className={`w-4 h-4 flex items-center justify-center rounded-sm text-sm font-bold ${getLetterState(colIndex, rowIndex, ansKey)}`}
+              className={`w-5 h-5 flex items-center justify-center rounded-sm text-sm font-bold ${getLetterState(colIndex, rowIndex, ansKey)}`}
               role="cell"
             >
             </div>

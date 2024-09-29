@@ -5,7 +5,8 @@ import { db, getRoomInfo, leaveRoom, startRoom } from '@/lib/firebase';
 import { ErrorCode } from '@/lib/util';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { Backdrop, Button, Card, CardHeader, CircularProgress, IconButton, Typography } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
+import { FaCopy } from "react-icons/fa6";
+
 
 const colors = ['bg-white/15', 'bg-yellow-500', 'bg-green-500',];
 
@@ -99,7 +100,8 @@ export default function Room() {
     const unsubscribe = onSnapshot(doc(db, "listeners", roomListener), (doc) => {
       const data = doc.data();
       console.log(data);
-      const { counter, gameStarted } = (doc.data()) as { counter: number, gameStarted: boolean };
+      if (data === undefined) return;
+      const { counter, gameStarted } = (data) as { counter: number, gameStarted: boolean };
       if (!gameStarted) {
         refreshRoomData();
       } else {
@@ -128,23 +130,9 @@ export default function Room() {
     }
   };
 
-  const userList = userNames.map((user, i) => (
-    <div key={i} className="w-80 mt-4 p-5 bg-zinc-900 shadow-lg rounded-lg flex items-center justify-between">
-      <div className="flex flex-col">
-        <p className="text-white text-lg font-semibold">{user}</p>
-        {host === user && <p className="text-red-500 text-sm font-medium">(Host)</p>}
-        {name === user && <p className="text-green-500 text-sm font-medium">(You)</p>}
-      </div>
-      {name === user && (
-        <button
-          onClick={clickLeaveRoom}
-          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Leave
-        </button>
-      )}
-    </div>
-  ));
+
+
+
 
 
   const canStartGame = isHost && userNames.length > 1;
@@ -179,18 +167,44 @@ export default function Room() {
             </div>
           ))}
         </div>
-        {isHost && <button
-          onClick={clickStartGame}
-          disabled={!canStartGame}
-          className={`my-5 hover:cursor-pointer px-6 py-2 rounded-lg shadow-lg font-bold transition-colors ${canStartGame
-            ? 'bg-gray-600 text-white hover:bg-gray-800'
-            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }`}
-        >
-          Start Game
-        </button>}
+        <div className='mt-3 flex flex-row w-full items-start gap-3'>
 
-        {userList}
+          <button className='items-start'>
+            <div className='flex flex-row rounded-lg px-4 py-2 bg-white/15 w-fit'><FaCopy />Copy Link
+            </div>
+          </button>
+          <div className='flex flex-col gap-2'>
+            {userNames.map((user, i) => (
+              <div key={i} className="w-80 p-5 bg-black/25 shadow-lg rounded-lg flex items-center justify-between">
+                <div className="flex flex-col">
+                  <p className="text-white text-lg font-semibold">{user}</p>
+                  {host === user && <p className="text-red-500 text-sm font-medium">(Host)</p>}
+                  {name === user && <p className="text-green-500 text-sm font-medium">(You)</p>}
+                </div>
+                {name === user && (
+                  <button
+                    onClick={clickLeaveRoom}
+                    className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                  >
+                    Leave
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {isHost && <button
+            onClick={clickStartGame}
+            disabled={!canStartGame}
+            className={`hover:cursor-pointer px-6 py-2 rounded-lg shadow-lg font-bold transition-colors ${canStartGame
+              ? 'bg-gray-600 text-white hover:bg-gray-800'
+              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+          >
+            Start Game
+          </button>}
+        </div>
+
 
         {!isHost && <Typography variant="subtitle1" sx={{ marginTop: "1rem" }}>
           Waiting for host to start the game...</Typography>}
@@ -199,5 +213,5 @@ export default function Room() {
           <CircularProgress color="inherit" />
         </Backdrop>
       </div>
-    </div>)
+    </div >)
 }

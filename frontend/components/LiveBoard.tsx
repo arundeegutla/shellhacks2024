@@ -19,7 +19,13 @@ export default function LiveBoard({
   submit: (s: string) => void
 }) {
   const [currentGuess, setCurrentGuess] = useState('');
-  const [currentRow, setCurrentRow] = useState(guesses.findIndex(str => str.length === 0));
+  const [currentRow, setCurrentRow] = useState(() => {
+    let i = 0;
+    while (i < 6 && guesses[i].length !== 0) i++;
+    return i;
+  });
+
+  console.log("ROW", currentRow)
 
   useEffect(() => {
     setGameOver(guesses.some(str => str === solution));
@@ -34,7 +40,7 @@ export default function LiveBoard({
   const submitGuess = useCallback(() => {
     if (!validateWord(currentGuess)) return;
     submit(currentGuess)
-    if (currentGuess === solution || currentRow === MAX_GUESSES - 1) {
+    if (currentGuess === solution || currentRow >= MAX_GUESSES - 1) {
       setGameOver(true);
     }
 

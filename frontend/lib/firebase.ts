@@ -3,7 +3,7 @@ import { getAnalytics } from "firebase/analytics";
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 import { connectFunctionsEmulator, getFunctions, httpsCallable } from "firebase/functions";
 import { ErrorCode } from "./util";
-import { JoinRoomResponse, MakeRoomResponse, GetRoomInfoResponse, GetGameInfoResponse, SubmitSecretWordInput } from "./types";
+import { JoinRoomResponse, MakeRoomResponse, GetRoomInfoResponse, GetGameInfoResponse, SubmitSecretWordInput, InitiateRoundProps } from "./types";
 
 const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_API_KEY,
@@ -25,14 +25,6 @@ if (DEBUG) {
     connectFunctionsEmulator(functions, 'localhost', 5001);
 }
 
-
-// Create callable functions
-
-
-
-
-
-
 const makeRoom = httpsCallable<unknown, MakeRoomResponse>(functions, "makeRoom");
 const joinRoom = httpsCallable<unknown, JoinRoomResponse>(functions, "joinRoom");
 const helloWorld = httpsCallable(functions, "helloWorld");
@@ -42,6 +34,7 @@ const startRoom = httpsCallable<unknown, { error: ErrorCode }>(functions, "start
 const getGameInfo = httpsCallable<unknown, GetGameInfoResponse>(functions, "getGameInfo");
 const submitSecretWord = httpsCallable<SubmitSecretWordInput, { error: ErrorCode }>(functions, "submitSecretWord");
 const submitGuess = httpsCallable<SubmitSecretWordInput, { error: ErrorCode }>(functions, "submitGuess");
+const initiateRound = httpsCallable<InitiateRoundProps, { error: ErrorCode }>(functions, "initiateRound");
 
 
-export { db, makeRoom, joinRoom, helloWorld, getRoomInfo, leaveRoom, startRoom, getGameInfo, submitSecretWord, submitGuess };
+export { db, makeRoom, joinRoom, helloWorld, getRoomInfo, leaveRoom, startRoom, getGameInfo, submitSecretWord, submitGuess, initiateRound };
