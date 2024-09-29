@@ -38,8 +38,8 @@ export async function getRoomData(roomCode: string) {
 }
 
 interface GetRoomInfoData {
-    roomCode: string;
-    userID: string;
+	roomCode: string;
+	userID: string;
 }
 
 export const getRoomInfo = onCall(async (request: CallableRequest<GetRoomInfoData>) => {
@@ -128,10 +128,11 @@ export const getGameInfo = onCall(async (request: CallableRequest<GetRoomInfoDat
 	const roundCount = roomData.roundCount;
 	roomData.rounds = [];
 
-	for(let i = 0; i < roundCount; i++) {
+	for (let i = 0; i < roundCount; i++) {
 		const usersSnapshot = await rooms.doc(roomCode).collection("rounds").doc(i.toString()).collection("users").get();
-		const usersCollection = usersSnapshot.docs.map(doc => ({id: parseInt(doc.id), data: doc.data()}));
-		roomData.rounds.push(usersCollection);
+		const roundSnapshot = await rooms.doc(roomCode).collection("rounds").doc(i.toString()).get();
+		const usersCollection = usersSnapshot.docs.map(doc => ({ id: parseInt(doc.id), data: doc.data() }));
+		roomData.rounds.push({ ...(roundSnapshot.data()), games: usersCollection });
 	}
 
 	result.roomData = roomData;

@@ -70,8 +70,8 @@ export default function Room() {
             if (!gameStarted) {
                 refreshRoomData();
             } else {
-                alert("Game started");
-                // navigate("/game/" + roomCode);
+                console.log("Game started");
+                router.replace(`/room?id=${roomCode}`);
             }
         });
         return () => unsubscribe();
