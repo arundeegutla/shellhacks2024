@@ -42,7 +42,7 @@ export async function createRound(userIds: string[], roundId: string, roomCode: 
     await getRoomReference(roomCode).update({roundCount: roundCount + 1});
 }
 
-function getBoardReference(userId: string, roundId: string, roomId: string)
+export function getBoardReference(userId: string, roundId: string, roomId: string)
 {
     return getFirestore()
             .collection(COLLECTIONS.ROOM)
@@ -106,18 +106,4 @@ export async function getTrueWord(roundId: string, roomId: string)
     return (doc.data() as Round).true_word;
 }
 
-// TODO: FIX THIS
-export async function endTurn(userId: string, roundId: string, roomId: string)
-{
-    const batch = getFirestore().batch();
-    batch.update(getBoardReference(userId, roundId, roomId), {
-        'guesses_left': 0,
-        'is_done': true
-    });
-    await batch.commit();
-    const gamesWon = await getRoundReference(roundId, roomId).collection("users").where("is_done", "==", true).get();
-    const numUsers = (await getRoomReference(roomId).get()).data()!.users.length;
-    const roundOver = gamesWon.size >= numUsers - 1;
-    if (roundOver) await endRound(roomId, roundId);
-    // await wrapUpRound(roomId, roundId, userId);
-}
+
