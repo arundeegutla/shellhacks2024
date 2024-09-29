@@ -31,9 +31,10 @@ export default function Room() {
   const [pickWordBool, setPickWordBool] = useState<boolean>(false);
   const [guesses, setGuesses] = useState<string[]>(Array(MAX_GUESSES).fill(''));
   const [start, setStart] = useState(false);
-  const [end, setEnd] = useState(false);
   const [hostName, setHostName] = useState('');
-  const [showPopup, setShowPopup] = useState(false);
+  const [roundStartedTime, setRoundStartedTime] = useState(Date.now());
+
+
 
   const wordInputRef = useRef<HTMLInputElement>(null)
   const validateWord = (s: string) => {
@@ -112,6 +113,7 @@ export default function Room() {
     if (!currentGame) {
       console.error("Current game not found");
     } else {
+      setGameOver(currentGame?.data.is_done)
       // fill in previous guesses
       console.log(userID, currentGame);
       let newGuesses = [...guesses];
@@ -121,14 +123,16 @@ export default function Room() {
       }
       setGuesses(newGuesses);
     }
+
+    setRoundStartedTime(currentRound.time_started);
     setIsHost(roomData.hostID === userID);
     setHostName(roomData.users.find(user => user.userID === roomData.hostID)?.name || '');
     setRoom(roomData);
     setStart(currentRound.has_started)
-    setEnd(currentRound.has_finished)
     setLoading(false);
-    setShowPopup(currentRound.has_finished); // show the popup
+    setGameOver(currentRound.has_finished); // show the popup
   };
+
 
   useEffect(() => {
     if (!roomId) {
@@ -141,14 +145,15 @@ export default function Room() {
 
     if (start && timeLeft > 0 && !gameOver) {
       timer = setInterval(() => {
-        setTimeLeft(prev => prev - 1);
+        setTimeLeft(Math.round(((roundStartedTime + 180000) - Date.now()) / 1000));
       }, 1000);
-    } else if (timeLeft === 0) {
+    } else if (timeLeft <= 0) {
+      setTimeLeft(180);
       setGameOver(true);
     }
 
     return () => clearInterval(timer);
-  }, [timeLeft, gameOver, start]);
+  }, [timeLeft, gameOver, start, roundStartedTime]);
 
 
   if (loading || !room) {
@@ -190,15 +195,22 @@ export default function Room() {
   const moveNextRount = async () => {
     const obj = { room_code: roomId, user_id: userID! };
     await initiateRound(obj);
-    setShowPopup(false)
+    setGameOver(false)
   };
+
+  if (gameOver && room.roundCount === room.users.length) {
+    return <div>
+      <h1 className='text-4xl'>Results</h1>
+      <Leaderboard players={room} />
+    </div>
+  }
 
   const roundNum = room!.roundCount;
   const currentRound = room!.rounds[roundNum - 1];
   const others = currentRound.games.filter(g => g.id !== userID).sort((a, b) => a.id.localeCompare(b.id));
   return (
     <div className="m-auto w-full">
-      {showPopup && (
+      {gameOver && (
         <Popup
           isHost={isHost}
           secretWord={currentRound.true_word}
@@ -241,7 +253,7 @@ export default function Room() {
             </div>
           }
           {!isHost && !start && <h1 className='text-xl mb-5'>{hostName} is picking the word...</h1>}
-          {!isHost && start && <h1 className='text-xl mb-5'>{hostName} is picked the word!</h1>}
+          {!isHost && start && <h1 className='text-xl mb-5'>{hostName} has picked the word!</h1>}
           {!isHost && <LiveBoard submit={submitSolve} guesses={guesses} gameOver={gameOver} setGameOver={setGameOver} solution={currentRound.true_word} />}
 
         </div>
@@ -256,7 +268,7 @@ export default function Room() {
               pGuesses.push(g ?? '');
               pAnsKey.push(player.data.rows[j].verdicts);
             }
-            return <MiniWordle key={i} ansKey={pAnsKey} guesses={pGuesses} name={room!.users[pGameIndex].name} timeLeft={timeLeft} />
+            return <MiniWordle key={i} ansKey={pAnsKey} guesses={pGuesses} name={room!.users[pGameIndex].name} is_done={player.data.is_done} />
           })}
         </div>
       </div>
@@ -279,6 +291,7 @@ const Popup = ({ secretWord, isHost, onClose }: {
           <button onClick={onClose} className="mt-4 px-4 py-2 bg-blue-500 text-black/75 rounded-lg">
             Next round
           </button>}
+        {!isHost && "Please wait for the next round..."}
       </div>
     </div>
   );
