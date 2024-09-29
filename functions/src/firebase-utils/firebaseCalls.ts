@@ -3,7 +3,8 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { createDefaultBoard } from '../game-utils/GameBoard';
 import { GameBoard } from '../game-utils/GameBoard';
 import { Round } from '../game-utils/RoundType';
-import { logger } from 'firebase-functions/v2';
+// import { increment } from "firebase/firestore";
+
 
 const COLLECTIONS = {
     ROOM: "rooms",
@@ -59,28 +60,35 @@ export async function setGameBoard(gameBoard: GameBoard, userId: string, roundId
     return getBoardReference(userId, roundId, roomId).set(gameBoard);
 }
 
-function getRoundReference(roundId: string, roomId: string)
+function getRoomReference(roomId: string)
 {
     return getFirestore()
             .collection(COLLECTIONS.ROOM)
-            .doc(roomId)
+            .doc(roomId);
+}
+
+function getRoundReference(roundId: string, roomId: string)
+{
+    return getRoomReference(roomId)
             .collection(COLLECTIONS.ROUND)
             .doc(roundId);
 }
 
 export async function setTrueWordAndTriggerRound(word: string, roundId: string, roomId: string)
 {
+    const batch = getFirestore().batch();
     // add the true word and start the round
-    await getRoundReference(roundId, roomId).update({
+    batch.update(getRoundReference(roundId, roomId), {
         'true_word': word,
         'has_started': true
     });
+    // batch.update(getRoomReference(roomId), {'roundCount': increment(1)});
+    await batch.commit();
 }
 
 export async function getTrueWord(roundId: string, roomId: string)
 {
     const doc = await getRoundReference(roundId, roomId).get();
-    logger.log(`${doc.exists}, ${doc.data()}, ${!doc.data()}`);
     if(!doc.exists || !doc.data())
     {
         throw Error(`Issue getting true word from round ${roundId} from room ${roomId}`);

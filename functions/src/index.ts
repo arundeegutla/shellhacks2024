@@ -50,7 +50,7 @@ import { joinRoom } from "./join";
 import { getRoomInfo, getGameInfo } from "./room";
 import { leaveRoom } from "./leave";
 import { startRoom } from "./start";
-import { submitGuess, submitSecretWord } from "./endpoints/endpoints";
+import { submitGuess, submitSecretWord, initiateRound } from "./endpoints/endpoints";
 
 export { 
     makeRoom, 
@@ -60,5 +60,6 @@ export {
     submitGuess, 
     submitSecretWord, 
     startRoom, 
-    getGameInfo 
+    getGameInfo,
+    initiateRound
 };
