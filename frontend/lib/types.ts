@@ -38,8 +38,8 @@ export type GameBoard =
 {
     rows: Row[],
     guesses_left: number, 
-    
-    // game constants
+    is_done: boolean,
+    // game constants   
     num_guesses: number,
     word_length: number,
     time_started: number,
