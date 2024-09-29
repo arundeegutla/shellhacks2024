@@ -14,7 +14,7 @@ const poppins = Poppins({
 
 
 export const metadata: Metadata = {
-  title: 'Wordle 2.0👋',
+  title: 'Wordlify 👋',
   description: 'Wordle with friends',
   keywords:
     'Worldle, multiplayer, fun, game, projects',

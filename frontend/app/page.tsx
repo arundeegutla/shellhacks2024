@@ -3,10 +3,12 @@
 import { NAME } from "@/lib/util";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { FaGithub } from "react-icons/fa6";
 
 const colors = ['bg-white/15', 'bg-yellow-500', 'bg-green-500',];
 
 export default function Home() {
+
   const [flippedStates, setFlippedStates] = useState(Array(NAME.length).fill({ isFlipped: false, colorIndex: 0 }));
   const [lastFlippedIndex, setLastFlippedIndex] = useState(-1);
 
@@ -53,7 +55,7 @@ export default function Home() {
       </div>
 
       {/* Action buttons */}
-      <div className="flex space-x-4">
+      <div className="flex space-x-4 mb-2">
         <Link href="/room/create" passHref>
           <button className="hover:cursor-pointer px-6 py-2 bg-blue-500/30 border-2 border-blue-600 text-white font-bold rounded-lg shadow-lg hover:bg-blue-600 transition-colors">
             Create a Room
@@ -65,6 +67,7 @@ export default function Home() {
           </button>
         </Link>
       </div>
+
     </div>
   );
 }
