@@ -3,6 +3,7 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { createDefaultBoard } from '../game-utils/GameBoard';
 import { GameBoard } from '../game-utils/GameBoard';
 import { Round } from '../game-utils/RoundType';
+import { wrapUpRound } from '../word-utils/wordGuessing';
 // import { increment } from "firebase/firestore";
 
 
@@ -12,6 +13,8 @@ const COLLECTIONS = {
     USER: "users",
 };
 
+
+// create a round construct that is in picking word stage
 export async function createRound(userIds: string[], roundId: string, roomCode: string, num_guesses: number, word_length: number)
 {
     await getFirestore()
@@ -24,6 +27,7 @@ export async function createRound(userIds: string[], roundId: string, roomCode: 
     const batch = getFirestore().batch();
     batch.update(getRoundReference(roundId, roomCode), {
         "has_started": false,
+        "has_finished": false,
         "time_started": Date.now(),
         "num_guesses_allowed": num_guesses,
         "word_length": word_length
@@ -32,6 +36,9 @@ export async function createRound(userIds: string[], roundId: string, roomCode: 
         batch.set(getBoardReference(userId, roundId, roomCode), createDefaultBoard(num_guesses, word_length));
     });
     await batch.commit()
+    // increment round count
+    const roundCount = (await getRoomReference(roomCode).get()).data()!.roundCount;
+    await getRoomReference(roomCode).update({roundCount: roundCount + 1});
 }
 
 function getBoardReference(userId: string, roundId: string, roomId: string)
@@ -74,13 +81,15 @@ export function getRoundReference(roundId: string, roomId: string)
             .doc(roundId);
 }
 
+// move from word picking stage to start of round
 export async function setTrueWordAndTriggerRound(word: string, roundId: string, roomId: string)
 {
     const batch = getFirestore().batch();
     // add the true word and start the round
     batch.update(getRoundReference(roundId, roomId), {
         'true_word': word,
-        'has_started': true
+        'has_started': true,
+        'time_started': Date.now()
     });
     // batch.update(getRoomReference(roomId), {'roundCount': increment(1)});
     await batch.commit();
@@ -94,4 +103,16 @@ export async function getTrueWord(roundId: string, roomId: string)
         throw Error(`Issue getting true word from round ${roundId} from room ${roomId}`);
     }
     return (doc.data() as Round).true_word;
+}
+
+// TODO: FIX THIS
+export async function endTurn(userId: string, roundId: string, roomId: string)
+{
+    const batch = getFirestore().batch();
+    batch.update(getBoardReference(userId, roundId, roomId), {
+        'guesses_left': 0,
+        'is_done': true
+    });
+    await batch.commit();
+    await wrapUpRound(roomId, roundId, userId);
 }

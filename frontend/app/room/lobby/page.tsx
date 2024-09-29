@@ -99,7 +99,8 @@ export default function Room() {
     const unsubscribe = onSnapshot(doc(db, "listeners", roomListener), (doc) => {
       const data = doc.data();
       console.log(data);
-      const { counter, gameStarted } = (doc.data()) as { counter: number, gameStarted: boolean };
+      if (data === undefined) return;
+      const { counter, gameStarted } = (data) as { counter: number, gameStarted: boolean };
       if (!gameStarted) {
         refreshRoomData();
       } else {
