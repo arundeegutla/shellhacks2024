@@ -70,7 +70,8 @@ export const joinRoom = onCall(async (request: CallableRequest<JoinRoomData>) =>
 		name: name,
 		userID: userID,
 		playerID: -1,
-		roomCode: roomCode
+		roomCode: roomCode,
+		points: 0
 	}
 
 	// Add user to room

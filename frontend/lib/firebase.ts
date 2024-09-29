@@ -5,7 +5,6 @@ import { connectFunctionsEmulator, getFunctions, httpsCallable } from "firebase/
 import { ErrorCode } from "./util";
 import { JoinRoomResponse, MakeRoomResponse, GetRoomInfoResponse, GetGameInfoResponse, SubmitSecretWordInput } from "./types";
 
-
 const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_API_KEY,
     authDomain: process.env.NEXT_PUBLIC_AUTH_DOMAIN,
@@ -20,7 +19,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const functions = getFunctions(app);
 
-const DEBUG = false;
+const DEBUG = true;
 if (DEBUG) {
     connectFirestoreEmulator(db, 'localhost', 8080);
     connectFunctionsEmulator(functions, 'localhost', 5001);
@@ -28,6 +27,7 @@ if (DEBUG) {
 
 
 // Create callable functions
+
 
 
 

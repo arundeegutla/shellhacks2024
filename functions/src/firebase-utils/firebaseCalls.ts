@@ -60,14 +60,14 @@ export async function setGameBoard(gameBoard: GameBoard, userId: string, roundId
     return getBoardReference(userId, roundId, roomId).set(gameBoard);
 }
 
-function getRoomReference(roomId: string)
+export function getRoomReference(roomId: string)
 {
     return getFirestore()
             .collection(COLLECTIONS.ROOM)
             .doc(roomId);
 }
 
-function getRoundReference(roundId: string, roomId: string)
+export function getRoundReference(roundId: string, roomId: string)
 {
     return getRoomReference(roomId)
             .collection(COLLECTIONS.ROUND)

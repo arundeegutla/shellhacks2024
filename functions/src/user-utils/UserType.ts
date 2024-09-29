@@ -2,5 +2,6 @@ export interface UserType {
     name: string,
     userID: string,
     playerID: number,
-    roomCode: string
+    roomCode: string,
+    points: number
 };
