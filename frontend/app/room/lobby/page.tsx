@@ -52,24 +52,24 @@ export default function Room() {
     return newIndex;
   };
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      let indexToFlip;
-      do {
-        indexToFlip = Math.floor(Math.random() * 8);
-      } while (indexToFlip === lastFlippedIndex);
-      setLastFlippedIndex(indexToFlip);
-      setFlippedStates(prevStates =>
-        prevStates.map((state, idx) =>
-          idx === indexToFlip
-            ? { isFlipped: true, colorIndex: getRandomColorIndex(state.colorIndex) }
-            : { isFlipped: false, colorIndex: state.colorIndex }
-        )
-      );
-    }, 1500);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     let indexToFlip;
+  //     do {
+  //       indexToFlip = Math.floor(Math.random() * 8);
+  //     } while (indexToFlip === lastFlippedIndex);
+  //     setLastFlippedIndex(indexToFlip);
+  //     setFlippedStates(prevStates =>
+  //       prevStates.map((state, idx) =>
+  //         idx === indexToFlip
+  //           ? { isFlipped: true, colorIndex: getRandomColorIndex(state.colorIndex) }
+  //           : { isFlipped: false, colorIndex: state.colorIndex }
+  //       )
+  //     );
+  //   }, 1500);
 
-    return () => clearInterval(interval);
-  }, [lastFlippedIndex]);
+  //   return () => clearInterval(interval);
+  // }, [lastFlippedIndex]);
 
   // Load data from local storage
   useEffect(() => {
@@ -128,24 +128,24 @@ export default function Room() {
     }
   };
 
-  const userList = userNames.map((user, i) =>
-    <Card key={i} raised sx={{ display: "flex", }}>
-      <CardHeader
-        title={
-          <div className="flex-row">
-            <Typography variant="subtitle1">
-              {user}
-            </Typography>
-            {host === user && <Typography variant="subtitle1" sx={{ color: "red" }}>&nbsp;(Host)</Typography>}
-            {name === user && <Typography variant="subtitle1" sx={{ color: "green" }}>&nbsp;(You)</Typography>}
-          </div>
-        }
-      />
-      {name === user && <IconButton onClick={clickLeaveRoom} sx={{ marginLeft: "auto" }}>
-        <CloseIcon style={{ color: "red" }} />
-      </IconButton>}
-    </Card>
-  );
+  const userList = userNames.map((user, i) => (
+    <div key={i} className="w-80 mt-4 p-5 bg-zinc-900 shadow-lg rounded-lg flex items-center justify-between">
+      <div className="flex flex-col">
+        <p className="text-white text-lg font-semibold">{user}</p>
+        {host === user && <p className="text-red-500 text-sm font-medium">(Host)</p>}
+        {name === user && <p className="text-green-500 text-sm font-medium">(You)</p>}
+      </div>
+      {name === user && (
+        <button
+          onClick={clickLeaveRoom}
+          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Leave
+        </button>
+      )}
+    </div>
+  ));
+
 
   const canStartGame = isHost && userNames.length > 1;
   const clickStartGame = async () => {
@@ -167,10 +167,9 @@ export default function Room() {
 
   return (
     <div className="landing">
-      <div style={{ position: "relative" }}>
-        <h1 className="text-4xl font-semibold">Lobby</h1>
-        <a className="text-sm">Code</a>
-        <div className="grid grid-cols-6 gap-1" role="grid" aria-label="Room code input">
+      <div style={{ position: "relative" }} className='flex flex-col items-center justify-center'>
+        <h1 className="text-5xl font-semibold mt-10">Lobby</h1>
+        <div className="grid grid-cols-6 gap-1 mt-5" role="grid" aria-label="Room code input">
           {roomCode && roomCode.split("").map((letter, idx) => (
             <div key={idx} className="relative w-20 h-20 max-md:w-10 max-md:h-10">
               <div className={`absolute w-full h-full transition-all duration-500 ${colors[flippedStates[idx].colorIndex]} rounded-md ${flippedStates[idx].isFlipped ? 'animate-flip' : ''}`} />
@@ -180,14 +179,22 @@ export default function Room() {
             </div>
           ))}
         </div>
-        <Card className="lobby" raised>
-          <Typography variant="h5">Players:</Typography>
-          {userList}
-          {isHost && <Button variant="contained" onClick={clickStartGame}
-            disabled={!canStartGame} sx={{ marginTop: "1rem" }}>Start Game</Button>}
-          {!isHost && <Typography variant="subtitle1" sx={{ marginTop: "1rem" }}>
-            Waiting for host to start the game...</Typography>}
-        </Card>
+        {isHost && <button
+          onClick={clickStartGame}
+          disabled={!canStartGame}
+          className={`my-5 hover:cursor-pointer px-6 py-2 rounded-lg shadow-lg font-bold transition-colors ${canStartGame
+            ? 'bg-gray-600 text-white hover:bg-gray-800'
+            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
+        >
+          Start Game
+        </button>}
+
+        {userList}
+
+        {!isHost && <Typography variant="subtitle1" sx={{ marginTop: "1rem" }}>
+          Waiting for host to start the game...</Typography>}
+
         <Backdrop open={!loaded} sx={{ position: "absolute" }}>
           <CircularProgress color="inherit" />
         </Backdrop>

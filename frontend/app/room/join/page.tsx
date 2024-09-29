@@ -158,7 +158,7 @@ export default function Join() {
         <button
           onClick={goToRoom}
           disabled={!canJoin || joining}
-          className={`px-6 py-2 rounded-lg shadow-lg font-bold transition-colors ${canJoin && !joining
+          className={`hover:cursor-pointer px-6 py-2 rounded-lg shadow-lg font-bold transition-colors ${canJoin && !joining
             ? 'bg-green-500 text-white hover:bg-green-600'
             : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}

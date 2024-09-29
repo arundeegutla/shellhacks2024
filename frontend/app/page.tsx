@@ -55,12 +55,12 @@ export default function Home() {
       {/* Action buttons */}
       <div className="flex space-x-4">
         <Link href="/room/create" passHref>
-          <button className="px-6 py-2 bg-blue-500/30 border-2 border-blue-600 text-white font-bold rounded-lg shadow-lg hover:bg-blue-600 transition-colors">
+          <button className="hover:cursor-pointer px-6 py-2 bg-blue-500/30 border-2 border-blue-600 text-white font-bold rounded-lg shadow-lg hover:bg-blue-600 transition-colors">
             Create a Room
           </button>
         </Link>
         <Link href="/room/join" passHref>
-          <button className="px-6 py-2 bg-green-500/30 border-2 border-green-600 text-white font-bold rounded-lg shadow-lg hover:bg-green-600 transition-colors">
+          <button className="hover:cursor-pointer px-6 py-2 bg-green-500/30 border-2 border-green-600 text-white font-bold rounded-lg shadow-lg hover:bg-green-600 transition-colors">
             Join a Room
           </button>
         </Link>
