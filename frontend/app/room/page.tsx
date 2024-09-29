@@ -9,6 +9,7 @@ import { ErrorCode } from '@/lib/util';
 import { db, getGameInfo, getRoomInfo } from '@/lib/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
 import Leaderboard, { Player } from '@/components/Leaderboard';
+import { RoomType } from '@/lib/types';
 
 const WORD_LENGTH = 5;
 const MAX_GUESSES = 6;
@@ -92,6 +93,14 @@ export default function Room() {
   const [gameOver, setGameOver] = useState(false);
   const [solution] = useState('REACT');
   const [timeLeft, setTimeLeft] = useState(10); // Timer starts at 3 minutes (180 seconds)
+  const [loaded, setLoaded] = useState(false);
+  const [room, setRoom] = useState<RoomType | null>(null);
+
+  useEffect(() => {
+    if (!roomId) {
+      router.push('/');
+    }
+  }, [roomId, router]);
 
   // Load data from local storage
   useEffect(() => {
@@ -133,19 +142,22 @@ export default function Room() {
     const unsubscribe = onSnapshot(doc(db, "listeners", roomListener), (doc) => {
       const data = doc.data();
       console.log(data);
+      updateGameInfo();
     });
     return () => unsubscribe();
   }, [roomListener]);
 
   const updateGameInfo = async () => {
-    const response = (await getGameInfo({ roomId, userID })).data;
+    const response = (await getGameInfo({ roomCode: roomId, userID })).data;
     if (response.error !== ErrorCode.noError) {
-      console.error("Error getting game info");
+      console.error("Error getting game info: ", response.error);
       return;
     }
     const roomData = response.roomData;
-    
+    setRoom(roomData);
+    setLoaded(true);
   };
+
 
   const submitGuess = () => {
     const newGuesses = [...guesses];
@@ -158,12 +170,6 @@ export default function Room() {
       setGameOver(true);
     }
   };
-
-  useEffect(() => {
-    if (!roomId) {
-      router.push('/');
-    }
-  }, [roomId, router]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -196,6 +202,15 @@ export default function Room() {
 
     return () => clearInterval(timer);
   }, [timeLeft, gameOver]);
+
+  if (!loaded) {
+    return <div>Loading... (fix this)</div>;
+  }
+
+  const roundNum = room!.roundCount;
+  const currentRound = room!.rounds[roundNum - 1];
+  const others = currentRound.games.filter(g => room!.users[g.id].userID !== userID).sort((a, b) => a.id - b.id);
+
 
   if (!roomId) {
     return (
@@ -254,8 +269,15 @@ export default function Room() {
           <KeyBoard handleKeyPress={handleKeyPress} gameOver={gameOver} />
         </div>
         <div className='flex flex-col gap-1 mr-auto w-[33%] pl-16'>
-          {friends.map((m, i) => {
-            return <MiniWordle key={i} ansKey={m.ansKey} guesses={m.guesses} name={m.name} timeLeft={timeLeft} />
+          {others.map((player, i) => {
+            let pAnsKey = [];
+            let pGuesses = [];
+            for (let j = 0; j < player.data.rows.length; j++) {
+              let g = player.data.rows[j].guess;
+              pGuesses.push(g ?? '');
+              pAnsKey.push(player.data.rows[j].verdicts);
+            }
+            return <MiniWordle key={i} ansKey={pAnsKey} guesses={pGuesses} name={room!.users[player.id].name} timeLeft={timeLeft} />
           })}
         </div>
       </div>
