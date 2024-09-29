@@ -1,4 +1,8 @@
-import { getGameBoard, getRoomReference, getRoundReference } from "../firebase-utils/firebaseCalls";
+import { CallableRequest, onCall } from "firebase-functions/https";
+import { getBoardReference, getGameBoard, getRoomReference, getRoundReference } from "../firebase-utils/firebaseCalls";
+import { getFirestore } from "firebase-admin/firestore";
+import { ErrorCode } from "../errorCodes";
+import { endRound } from "../word-utils/wordGuessing";
 
 const pointsForTry = [100, 20, 12, 8, 5, 3, 1];
 
@@ -20,3 +24,40 @@ export async function updateScore(roomId: string, roundId: string, userId: strin
     await getRoomReference(roomId).update(roomData);
     return gamesWon.size >= numUsers - 1;
 }
+
+
+// TODO: FIX THIS
+
+export interface EndTurnData {
+    userId: string;
+    roundId: string;
+    roomId: string;
+}
+export const endTurn = onCall(async (request: CallableRequest<EndTurnData>) => {
+    const userId = request.data.userId;
+    const roundId = request.data.roundId;
+    const roomId = request.data.roomId;
+
+    let response = {
+        error: ErrorCode.noError
+    };
+
+    if (userId === undefined || roundId === undefined || roomId === undefined) {
+        response.error = ErrorCode.missingParameters;
+        return response;
+    }
+
+    const batch = getFirestore().batch();
+    batch.update(getBoardReference(userId, roundId, roomId), {
+        'guesses_left': 0,
+        'is_done': true
+    });
+    await batch.commit();
+    const gamesWon = await getRoundReference(roundId, roomId).collection("users").where("is_done", "==", true).get();
+    const numUsers = (await getRoomReference(roomId).get()).data()!.users.length;
+    const roundOver = gamesWon.size >= numUsers - 1;
+    if (roundOver) await endRound(roomId, roundId);
+    // await wrapUpRound(roomId, roundId, userId);
+
+    return response
+});
