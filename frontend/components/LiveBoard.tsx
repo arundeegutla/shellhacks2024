@@ -54,7 +54,6 @@ export default function LiveBoard({
 
 
     // BLANK
-    console.log(letter, solution[index], row, currentRow)
     if (row >= currentRow) return 'bg-black/50 border-2 border-white/10';
     // GREEN
     if (solution[index] === letter) {

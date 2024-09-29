@@ -3,10 +3,10 @@ import { ErrorCode } from "../errorCodes";
 import { getRoomData } from "../room";
 import { guessWord } from "../word-utils/wordGuessing";
 import { updateListener } from "../util";
-import { setTrueWordAndTriggerRound, createRound, getRoomReference } from "../firebase-utils/firebaseCalls";
+import { setTrueWordAndTriggerRound, getRoomReference } from "../firebase-utils/firebaseCalls";
 import { RoomType } from "../game-utils/RoomType";
 
-const NUM_GUESSES = 6, WORD_LENGTH = 5;
+// const NUM_GUESSES = 6, WORD_LENGTH = 5;
 
 interface WordData {
     word: string,
@@ -106,12 +106,13 @@ export const initiateRound = onCall(async (request: CallableRequest<{room_code: 
         return {error: ErrorCode.userNotHost};
     }
 
-    const users = room.users.map((user) => user.userID);   // eslint-disable-line
-    const roundId = String(room.roundCount);               // eslint-disable-line
+    // const users = room.users.map((user) => user.userID);   // eslint-disable-line
+    // const roundId = String(room.roundCount);               // eslint-disable-line
 
-    await createRound(users, roundId, roomCode, NUM_GUESSES, WORD_LENGTH);
-	await updateListener(roomData.listenDocumentID, true);
-    getRoomReference(roomCode).update({roundCount: room.roundCount + 1});
+    getRoomReference(roomCode).update({roundStarted: true});
+    // await createRound(users, roundId, roomCode, NUM_GUESSES, WORD_LENGTH);
+    // getRoomReference(roomCode).update({roundCount: room.roundCount + 1});
+	// await updateListener(roomData.listenDocumentID, true);
 	return result;
 });
 

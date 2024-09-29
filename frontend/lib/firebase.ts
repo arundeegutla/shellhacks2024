@@ -4,8 +4,6 @@ import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 import { connectFunctionsEmulator, getFunctions, httpsCallable } from "firebase/functions";
 import { ErrorCode } from "./util";
 import { JoinRoomResponse, MakeRoomResponse, GetRoomInfoResponse, GetGameInfoResponse, SubmitSecretWordInput } from "./types";
-import { JoinRoomResponse, MakeRoomResponse, GetRoomInfoResponse, GetGameInfoResponse, SubmitSecretWordInput } from "./types";
-
 
 const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_API_KEY,
