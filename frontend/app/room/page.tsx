@@ -3,7 +3,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { MdOutlineTimer } from "react-icons/md";
 import { ErrorCode, getNameHelperText, validateName } from '@/lib/util';
-import { db, getGameInfo, getRoomInfo, submitGuess, submitSecretWord } from '@/lib/firebase';
+import { db, getGameInfo, getRoomInfo, submitGuess, submitSecretWord, initiateRound } from '@/lib/firebase';
 import { RoomType } from '@/lib/types';
 import { doc, onSnapshot } from 'firebase/firestore';
 import Leaderboard from '@/components/Leaderboard';
@@ -31,7 +31,9 @@ export default function Room() {
   const [pickWordBool, setPickWordBool] = useState<boolean>(false);
   const [guesses, setGuesses] = useState<string[]>(Array(MAX_GUESSES).fill(''));
   const [start, setStart] = useState(false);
+  const [end, setEnd] = useState(false);
   const [hostName, setHostName] = useState('');
+  const [showPopup, setShowPopup] = useState(false);
 
   const wordInputRef = useRef<HTMLInputElement>(null)
   const validateWord = (s: string) => {
@@ -123,7 +125,9 @@ export default function Room() {
     setHostName(roomData.users.find(user => user.userID === roomData.hostID)?.name || '');
     setRoom(roomData);
     setStart(currentRound.has_started)
+    setEnd(currentRound.has_finished)
     setLoading(false);
+    setShowPopup(currentRound.has_finished); // show the popup
   };
 
   useEffect(() => {
@@ -183,12 +187,23 @@ export default function Room() {
     });
   }
 
+  const moveNextRount = async () => {
+    await initiateRound();
+    setShowPopup(false)
+  };
 
   const roundNum = room!.roundCount;
   const currentRound = room!.rounds[roundNum - 1];
   const others = currentRound.games.filter(g => g.id !== userID).sort((a, b) => a.id.localeCompare(b.id));
   return (
     <div className="m-auto w-full">
+      {showPopup && (
+        <Popup
+          isHost={isHost}
+          secretWord={currentRound.true_word}
+          onClose={moveNextRount}
+        />
+      )}
       <div className="flex flex-row items-center p-4 w-full">
         <div className='flex flex-row items-end justify-end pr-16 w-[33%]'>
           <Leaderboard players={room} />
@@ -248,3 +263,22 @@ export default function Room() {
   );
 }
 
+
+const Popup = ({ secretWord, isHost, onClose }: {
+  secretWord: string,
+  isHost: boolean;
+  onClose: () => void
+}) => {
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 text-black/75">
+      <div className="bg-white/70 rounded-lg p-5 text-center">
+        <h2 className="text-xl font-bold">Round Over!</h2>
+        <p className="mt-2">The secret word was: <strong>{secretWord}</strong></p>
+        {isHost &&
+          <button onClick={onClose} className="mt-4 px-4 py-2 bg-blue-500 text-black/75 rounded-lg">
+            Next round
+          </button>}
+      </div>
+    </div>
+  );
+};

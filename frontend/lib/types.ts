@@ -52,8 +52,9 @@ export interface UserGame {
 }
 
 export type Round =
-{
+{   
     has_started: boolean,
+    has_finished: boolean,
     time_started: number,
     true_word: string,
     num_guesses_allowed: number,
@@ -93,3 +94,9 @@ export interface SubmitSecretWordInput {
     round_id: string,
     room_code: string,
 }
+
+export interface InitiateRoundProps {
+    user_id: string,
+    room_code: string,
+}
+
