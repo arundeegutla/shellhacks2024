@@ -1,6 +1,7 @@
 import { isWordValid } from "./checkWordValidity";
 import { GameBoard, Verdict } from "../game-utils/GameBoard";
 import { getGameBoard, getTrueWord, setGameBoard } from "../firebase-utils/firebaseCalls";
+import { logger } from "firebase-functions/v2";
 
 export async function guessWord(word: string, userId: string, roundId: string, roomId: string)
 {
@@ -12,7 +13,8 @@ export async function guessWord(word: string, userId: string, roundId: string, r
     // get previous state
     const gameState = await getGameBoard(userId, roundId, roomId);
     if(gameState.guesses_left <= 0) {
-        throw Error(`User ${userId} trying to guess with no more guesses left`);
+        logger.error(`User ${userId} trying to guess with no more guesses left`);
+        return;
     }
     
     // calc new state
