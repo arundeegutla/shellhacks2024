@@ -5,6 +5,7 @@ import ErrorMessage from "@/components/errorMessage";
 import { randomName, validateName, getNameHelperText, ErrorCode } from "@/lib/util";
 import { makeRoom, joinRoom } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
+import Loading from "@/components/Loading";
 
 export default function Create() {
   const router = useRouter();
@@ -12,7 +13,7 @@ export default function Create() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const nameInputRef = useRef<HTMLInputElement>(null)
-
+  const [loading, setLoading] = useState(false);
 
   const error = !validateName(name);
 
@@ -57,6 +58,7 @@ export default function Create() {
         console.log("error:" + jrResponse.error)
         return;
       }
+      setLoading(true);
       console.log(jrResponse);
       const { userID, roomListener } = jrResponse;
       console.log(userID, roomListener);
@@ -66,6 +68,10 @@ export default function Create() {
       console.error(err);
     }
   };
+
+  if (loading) {
+    return <Loading />
+  }
   return (
     <>
       <div className="m-auto w-full h-full flex flex-col items-center justify-center">

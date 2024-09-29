@@ -1,17 +1,17 @@
 "use client";
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { MdOutlineTimer } from "react-icons/md";
-import KeyBoard from '@/components/KeyBoard';
-import MiniWordle from '@/components/MiniWordle';
-import { ErrorCode } from '@/lib/util';
 import { db, getGameInfo, getRoomInfo } from '@/lib/firebase';
+import { MdOutlineTimer } from "react-icons/md";
+import { ErrorCode } from '@/lib/util';
 import { doc, onSnapshot } from 'firebase/firestore';
 import Leaderboard, { Player } from '@/components/Leaderboard';
+import Link from 'next/link';
+import MiniWordle from '@/components/MiniWordle';
+import Loading from '@/components/Loading';
+import Board from '@/components/LiveBoard';
+import LiveBoard from '@/components/LiveBoard';
 
-const WORD_LENGTH = 5;
-const MAX_GUESSES = 6;
 
 
 const players: Player[] = [
@@ -81,16 +81,11 @@ export default function Room() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const roomId = searchParams.get('id');
-
+  const [loading, setLoading] = useState(true);
   const [userID, setUserID] = useState<string | null>(null);
   const [name, setName] = useState<string | null>(null);
   const [roomListener, setRoomListener] = useState<string | null>(null);
-
-  const [guesses, setGuesses] = useState<string[]>(Array(MAX_GUESSES).fill(''));
-  const [currentGuess, setCurrentGuess] = useState('');
-  const [currentRow, setCurrentRow] = useState(0);
   const [gameOver, setGameOver] = useState(false);
-  const [solution] = useState('REACT');
   const [timeLeft, setTimeLeft] = useState(10); // Timer starts at 3 minutes (180 seconds)
 
   // Load data from local storage
@@ -108,6 +103,7 @@ export default function Room() {
     } else {
       router.replace("/");
     }
+    setLoading(false)
   }, [roomId]);
 
   const refreshRoomData = async () => {
@@ -144,19 +140,7 @@ export default function Room() {
       return;
     }
     const roomData = response.roomData;
-    
-  };
 
-  const submitGuess = () => {
-    const newGuesses = [...guesses];
-    newGuesses[currentRow] = currentGuess;
-    setGuesses(newGuesses);
-    setCurrentRow(prev => prev + 1);
-    setCurrentGuess('');
-
-    if (currentGuess === solution || currentRow === MAX_GUESSES - 1) {
-      setGameOver(true);
-    }
   };
 
   useEffect(() => {
@@ -164,24 +148,6 @@ export default function Room() {
       router.push('/');
     }
   }, [roomId, router]);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (gameOver) return;
-      if (e.key === 'Enter') {
-        if (currentGuess.length === WORD_LENGTH) {
-          submitGuess();
-        }
-      } else if (e.key === 'Backspace') {
-        setCurrentGuess(prev => prev.slice(0, -1));
-      } else if (/^[A-Za-z]$/.test(e.key) && currentGuess.length < WORD_LENGTH) {
-        setCurrentGuess(prev => prev + e.key.toUpperCase());
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentGuess, gameOver, submitGuess]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -197,6 +163,10 @@ export default function Room() {
     return () => clearInterval(timer);
   }, [timeLeft, gameOver]);
 
+  if (loading) {
+    return <Loading />
+  }
+
   if (!roomId) {
     return (
       <div>
@@ -206,28 +176,11 @@ export default function Room() {
     );
   }
 
-  const handleKeyPress = (key: string) => {
-    if (key === 'ENTER') {
-      if (currentGuess.length === WORD_LENGTH) {
-        submitGuess();
-      }
-    } else if (key === 'BACKSPACE') {
-      setCurrentGuess(prev => prev.slice(0, -1));
-    } else if (currentGuess.length < WORD_LENGTH) {
-      setCurrentGuess(prev => prev + key);
-    }
-  };
 
-  const getLetterState = (letter: string, index: number, row: number) => {
-    if (row >= currentRow) return 'bg-black/50 border-2 border-white/10';
-    if (solution[index] === letter) return 'bg-green-500 text-white';
-    if (solution.includes(letter)) return 'bg-yellow-600 text-white';
-    return 'bg-white/15 text-white';
-  };
 
   return (
     <div className="m-auto w-full">
-      <div className="flex flex-row items-center min-h-screen p-4 w-full">
+      <div className="flex flex-row items-center p-4 w-full">
         <div className='flex flex-row items-end justify-end pr-16 w-[33%]'>
           <Leaderboard players={players} />
         </div>
@@ -236,22 +189,7 @@ export default function Room() {
             <MdOutlineTimer />
             {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
           </div>
-          <div className="grid grid-rows-6 gap-1 mb-4" role="grid" aria-label="Wordle game board">
-            {guesses.map((guess, rowIndex) => (
-              <div key={rowIndex} className="flex gap-1" role="row">
-                {Array.from({ length: WORD_LENGTH }).map((_, colIndex) => (
-                  <div
-                    key={colIndex}
-                    className={`w-14 h-14 flex items-center justify-center rounded-sm text-3xl font-bold ${getLetterState(guess[colIndex] || '', colIndex, rowIndex)}`}
-                    role="cell"
-                  >
-                    {guess[colIndex] || (rowIndex === currentRow ? currentGuess[colIndex] : '')}
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-          <KeyBoard handleKeyPress={handleKeyPress} gameOver={gameOver} />
+          <LiveBoard gameOver={gameOver} setGameOver={setGameOver} />
         </div>
         <div className='flex flex-col gap-1 mr-auto w-[33%] pl-16'>
           {friends.map((m, i) => {
