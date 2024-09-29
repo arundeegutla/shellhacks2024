@@ -3,7 +3,7 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { createDefaultBoard } from '../game-utils/GameBoard';
 import { GameBoard } from '../game-utils/GameBoard';
 import { Round } from '../game-utils/RoundType';
-// import { increment } from "firebase/firestore";
+import { increment } from "firebase/firestore";
 
 
 const COLLECTIONS = {
@@ -82,7 +82,7 @@ export async function setTrueWordAndTriggerRound(word: string, roundId: string, 
         'true_word': word,
         'has_started': true
     });
-    // batch.update(getRoomReference(roomId), {'roundCount': increment(1)});
+    batch.update(getRoomReference(roomId), {'roundCount': increment(1)});
     await batch.commit();
 }
 

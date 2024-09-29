@@ -5,7 +5,6 @@ import { guessWord } from "../word-utils.ts/wordGuessing";
 import { updateListener } from "../util";
 import { setTrueWordAndTriggerRound, createRound } from "../firebase-utils/firebaseCalls";
 import { RoomType } from "../game-utils/RoomType";
-import { logger } from "firebase-functions/v2";
 
 const NUM_GUESSES = 6, WORD_LENGTH = 5;
 
