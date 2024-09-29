@@ -1,11 +1,11 @@
 import { isWordValid } from "./checkWordValidity";
 import { GameBoard, Verdict } from "../game-utils/GameBoard";
-import { createRound, getGameBoard, getRoomReference, getRoundReference, getTrueWord, setGameBoard } from "../firebase-utils/firebaseCalls";
+import { getGameBoard, getRoundReference, getTrueWord, setGameBoard } from "../firebase-utils/firebaseCalls";
 import { logger } from "firebase-functions/v2";
-import { IMPOSTER_ACHIEVED, NUM_ROUNDS } from "../vars";
+import { IMPOSTER_ACHIEVED} from "../vars";
 import { ErrorCode } from "../errorCodes";
 import { updateScore } from "../game-utils/scoring";
-import { UserType } from "../user-utils/UserType";
+// import { UserType } from "../user-utils/UserType";
 // import { updateScore } from "../game-utils/scoring";
 
 export async function guessWord(word: string, userId: string, roundId: string, roomId: string) {
@@ -65,16 +65,17 @@ export async function guessWord(word: string, userId: string, roundId: string, r
     return ErrorCode.noError;
 }
 
+// transition to waiting for next round
 export async function endRound(roomId: string, roundId: string) {
-    const roomRef = getRoomReference(roomId);
-    const roomData = (await roomRef.get()).data();
-    const roundCount = roomData!.roundCount;
+    // const roomRef = getRoomReference(roomId);
+    // const roomData = (await roomRef.get()).data();
+    // const roundCount = roomData!.roundCount;
     const round = getRoundReference(roundId, roomId);
-    if (roundCount == NUM_ROUNDS) {
-        // await roomRef.update({ is_done: true });
-    } else {
-        round.update({ has_finished: true });
-    }
+    // if (roundCount == NUM_ROUNDS) {
+    //     // await roomRef.update({ is_done: true });
+    // } else {
+    round.update({ has_finished: true });
+    // }
     return ErrorCode.noError;
 }
 
@@ -82,7 +83,7 @@ export async function endRound(roomId: string, roundId: string) {
 // export async function wrapUpRound(roomId: string, roundId: string, userId: string) {
     
 // }
-// modifies the game board with the new guess, returns if the game was won
+// modifies the game board with the new guess, returns if the game was finished
 function updateStateWithGuess(wordGuess: string, trueWord: string, gameBoard: GameBoard) {
     const NUM_GUESS: number = gameBoard.num_guesses - gameBoard.guesses_left;
     gameBoard.guesses_left--;

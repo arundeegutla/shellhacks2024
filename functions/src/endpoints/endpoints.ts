@@ -126,7 +126,7 @@ export const initiateRound = onCall(async (request: CallableRequest<{ room_code:
         return { error: ErrorCode.userNotHost };
     }
     const roundCount = roomData!.roundCount;
-    // move this to initiateRound
+    // choose next host
     let hostIdx = roomData!.users.findIndex((user: UserType) => user.userID === roomData!.hostID);
     if (hostIdx === -1) {
         logger.error(`Host not found in room ${roomCode}`);
