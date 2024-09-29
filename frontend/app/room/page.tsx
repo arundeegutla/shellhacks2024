@@ -121,12 +121,19 @@ export default function Room() {
     const unsubscribe = onSnapshot(doc(db, "listeners", roomListener), (doc) => {
       const data = doc.data();
       console.log(data);
-      // const response = await getGameInfo({ roomId, userID });
     });
     return () => unsubscribe();
   }, [roomListener]);
 
-
+  const updateGameInfo = async () => {
+    const response = (await getGameInfo({ roomId, userID })).data;
+    if (response.error !== ErrorCode.noError) {
+      console.error("Error getting game info");
+      return;
+    }
+    const roomData = response.roomData;
+    
+  };
 
   const submitGuess = () => {
     const newGuesses = [...guesses];
