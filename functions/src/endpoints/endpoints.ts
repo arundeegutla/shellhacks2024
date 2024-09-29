@@ -118,14 +118,7 @@ async function validateParameters(
         let roomData = await getRoomData(roomCode);
         if (roomData == undefined) {
             return ErrorCode.roomNotFound;
-        }
-
-        // Check if room is closed
-        if (!roomData.open) {
-            return ErrorCode.roomClosed;
-        }
-        
-        if(userId !== null) {
+        } else if(userId !== null) {
             // Check if user is in room
             let userInRoom = false;
             for (let i = 0; i < roomData.users.length; i++) {
