@@ -52,5 +52,6 @@ const joinRoom = httpsCallable<unknown, JoinRoomResponse>(functions, "joinRoom")
 const helloWorld = httpsCallable(functions, "helloWorld");
 const getRoomInfo = httpsCallable<unknown, GetRoomInfoResponse>(functions, "getRoomInfo");
 const leaveRoom = httpsCallable<unknown, { error: ErrorCode }>(functions, "leaveRoom");
+const startRoom = httpsCallable<unknown, { error: ErrorCode }>(functions, "startRoom");
 
-export { db, makeRoom, joinRoom, helloWorld, getRoomInfo, leaveRoom };
+export { db, makeRoom, joinRoom, helloWorld, getRoomInfo, leaveRoom, startRoom };

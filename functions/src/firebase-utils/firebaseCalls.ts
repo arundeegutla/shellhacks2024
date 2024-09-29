@@ -11,18 +11,18 @@ const COLLECTIONS = {
     USER: "users",
 };
 
-export async function createRound(userIds: string[], roundId: string, roomId: string, num_guesses: number, word_length: number)
+export async function createRound(userIds: string[], roundId: string, roomCode: string, num_guesses: number, word_length: number)
 {
     await getFirestore()
         .collection(COLLECTIONS.ROOM)
-        .doc(roomId)
+        .doc(roomCode)
         .collection(COLLECTIONS.ROUND)
         .doc(roundId)
         .set({});
 
     const batch = getFirestore().batch();
     userIds.forEach((userId) => {
-        batch.set(getBoardReference(userId, roundId, roomId), createDefaultBoard(num_guesses, word_length));
+        batch.set(getBoardReference(userId, roundId, roomCode), createDefaultBoard(num_guesses, word_length));
     });
     await batch.commit()
 }

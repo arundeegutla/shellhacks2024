@@ -5,7 +5,9 @@ export interface RoomType {
 	users: UserType[],
 	open: true,
 	roomCode: string,
-	listenDocumentID: string
+	listenDocumentID: string,
+	roundStarted: boolean,
+	roundCount: number
 };
 
 export const defaultRoom = {
@@ -13,5 +15,7 @@ export const defaultRoom = {
 	users: [],
 	open: true,
 	roomCode: "",
-	listenDocumentID: ""
+	listenDocumentID: "",
+	roundStarted: false,
+	roundCount: 0
 } as RoomType;
