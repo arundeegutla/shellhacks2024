@@ -51,7 +51,7 @@ export const startRoom = onCall(async (request: CallableRequest<StartRoomData>) 
     roomData.roundCount = 1;
     let otherUsers = [];
     for(let i = 1; i < roomData.users.length; i++) {
-        otherUsers.push(i.toString());
+        otherUsers.push(roomData.users[i].userID);
     }
     await createRound(otherUsers, "0", roomCode, NUM_GUESSES, WORD_LENGTH);
 
