@@ -207,7 +207,7 @@ export default function Room() {
 
   const roundNum = room!.roundCount;
   const currentRound = room!.rounds[roundNum - 1];
-  const others = currentRound.games.filter(g => g.id !== userID).sort((a, b) => a.id.localeCompare(b.id));
+  const others = currentRound.games.filter(g => g.id !== userID && g.id !== room.hostID);
   return (
     <div className="m-auto w-full">
       {gameOver && (
