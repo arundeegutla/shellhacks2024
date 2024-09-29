@@ -15,5 +15,6 @@ export function isWordInDictionary(word: string): boolean
 {
     const fileContent: string = readFileSync('./src/word-utils/words.txt', 'utf-8');
     const dictionary: string[] = fileContent.split('\n');
+    console.log(dictionary.slice(0, 10));
     return dictionary.includes(word.toLowerCase());
 }

@@ -263,7 +263,7 @@ export default function Room() {
         <div className='flex flex-row items-end justify-end pr-16 w-[33%]'>
           <Leaderboard players={players} />
           <button onClick={async () => {
-            const obj = { room_code: roomId, word: "FORCE", user_id: "0", round_id: (roundNum - 1).toString() };
+            const obj = { room_code: roomId, word: "FORCE", user_id: userID!, round_id: (roundNum - 1).toString() };
             console.log("submitting secret word", obj);
             const response = (await submitSecretWord(obj)).data;
             console.log("secret word response", response);
