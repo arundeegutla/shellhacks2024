@@ -23,6 +23,10 @@ export async function guessWord(word: string, userId: string, roundId: string, r
     
     // calc new state
     gameState.true_word = gameState.true_word ?? await getTrueWord(roundId, roomId);
+    if(gameState.true_word === undefined) {
+        logger.error(`error in guessWord(). No secret word has been submitted.`);
+        return;
+    }
     updateStateWithGuess(word, gameState.true_word as string, gameState);
 
     // update state in firestore 
