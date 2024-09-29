@@ -119,11 +119,6 @@ async function validateParameters(
         if (roomData == undefined) {
             return ErrorCode.roomNotFound;
         }
-
-        // Check if room is closed
-        if (!roomData.open) {
-            return ErrorCode.roomClosed;
-        }
         
         if(userId !== null) {
             // Check if user is in room

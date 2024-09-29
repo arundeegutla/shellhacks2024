@@ -6,7 +6,7 @@ import { MdOutlineTimer } from "react-icons/md";
 import KeyBoard from '@/components/KeyBoard';
 import MiniWordle from '@/components/MiniWordle';
 import { ErrorCode } from '@/lib/util';
-import { db, getGameInfo, getRoomInfo } from '@/lib/firebase';
+import { db, getGameInfo, getRoomInfo, submitSecretWord } from '@/lib/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
 import Leaderboard, { Player } from '@/components/Leaderboard';
 import { RoomType } from '@/lib/types';
@@ -154,6 +154,23 @@ export default function Room() {
       return;
     }
     const roomData = response.roomData;
+    console.log("roomData", roomData);
+    const roundNum = roomData!.roundCount;
+    const currentRound = roomData!.rounds[roundNum - 1];
+    // set previous guesses from current game
+    // const currentGame = currentRound.games.find(g => roomData!.users[g.id].userID === userID);
+    // if (!currentGame) {
+    //   console.error("Current game not found");
+    // } else {
+    //   // fill in previous guesses
+    //   console.log(userID, currentGame);
+    //   let newGuesses = [...guesses];
+    //   for (let i = 0; i < currentGame!.data.rows.length; i++) {
+    //     let g = currentGame!.data.rows[i].guess;
+    //     newGuesses[i] = g ?? '';
+    //   }
+    //   setGuesses(newGuesses);
+    // }
     setRoom(roomData);
     setLoaded(true);
   };
@@ -209,7 +226,7 @@ export default function Room() {
 
   const roundNum = room!.roundCount;
   const currentRound = room!.rounds[roundNum - 1];
-  const others = currentRound.games.filter(g => room!.users[g.id].userID !== userID).sort((a, b) => a.id - b.id);
+  const others = currentRound.games.filter(g => g.id !== userID).sort((a, b) => a.id.localeCompare(b.id));
 
 
   if (!roomId) {
@@ -245,6 +262,14 @@ export default function Room() {
       <div className="flex flex-row items-center min-h-screen p-4 w-full">
         <div className='flex flex-row items-end justify-end pr-16 w-[33%]'>
           <Leaderboard players={players} />
+          <button onClick={async () => {
+            const obj = { room_code: roomId, word: "FORCE", user_id: "0", round_id: (roundNum - 1).toString() };
+            console.log("submitting secret word", obj);
+            const response = (await submitSecretWord(obj)).data;
+            console.log("secret word response", response);
+          }}>
+            Secret Word: Force
+          </button>
         </div>
         <div className='flex flex-col items-center justify-center wordle w-[34%]'>
           <div className='flex flex-row items-center justify-center rounded-lg bg-white/10 px-2 py-1 mb-6 font-medium  min-w-20 gap-1'>
@@ -272,12 +297,14 @@ export default function Room() {
           {others.map((player, i) => {
             let pAnsKey = [];
             let pGuesses = [];
+            let pGameIndex = currentRound.games.findIndex(g => g.id === player.id);
+            if (pGameIndex === -1) { return null; }
             for (let j = 0; j < player.data.rows.length; j++) {
               let g = player.data.rows[j].guess;
               pGuesses.push(g ?? '');
               pAnsKey.push(player.data.rows[j].verdicts);
             }
-            return <MiniWordle key={i} ansKey={pAnsKey} guesses={pGuesses} name={room!.users[player.id].name} timeLeft={timeLeft} />
+            return <MiniWordle key={i} ansKey={pAnsKey} guesses={pGuesses} name={room!.users[pGameIndex].name} timeLeft={timeLeft} />
           })}
         </div>
       </div>
