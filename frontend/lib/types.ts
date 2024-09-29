@@ -46,7 +46,7 @@ export type GameBoard =
 };
 
 export interface UserGame {
-    id: number,
+    id: string,
     data: GameBoard
 }
 
@@ -83,4 +83,11 @@ export interface GetRoomInfoResponse {
     requesterIsHost: boolean
     host: string,
     error: ErrorCode
+}
+
+export interface SubmitSecretWordInput {
+    word: string,
+    user_id: string,
+    round_id: string,
+    room_code: string,
 }

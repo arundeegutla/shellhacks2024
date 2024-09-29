@@ -14,7 +14,6 @@ export default function Create() {
   const [creating, setCreating] = useState(false);
   const nameInputRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(false);
-
   const error = !validateName(name);
 
   const changeName = (e: React.ChangeEvent<HTMLInputElement>) => {
