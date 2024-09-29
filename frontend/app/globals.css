@@ -36,6 +36,18 @@ body {
 }
 
 
+@keyframes flip2 {
+  0% {
+    transform: perspective(400px) rotateX(0);
+  }
+  100% {
+    transform: perspective(400px) rotateX(360deg);
+  }
+}
+.animate-flip {
+  animation: flip2 1s infinite linear;
+}
+
 /* Animation */
 
 @keyframes fadeInUp {
