@@ -4,7 +4,7 @@ import { TextField } from '@mui/material';
 import ErrorMessage from "@/components/errorMessage";
 import { joinRoom } from "@/lib/firebase";
 import { randomName, validateName, getNameHelperText, validateRoomCode, getRoomCodeHelperText, ErrorCode, getErrorMessage } from "@/lib/util";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface JoinResponse {
   error: ErrorCode;
@@ -14,8 +14,9 @@ interface JoinResponse {
 
 export default function Join() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [name, setName] = useState<string>(randomName());
-  const [roomCode, setRoomCode] = useState<string>("");
+  const [roomCode, setRoomCode] = useState<string>(searchParams.get('roomCode') ?? 'TESTS');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [joining, setJoining] = useState<boolean>(false);
   const [joinStatus, setJoinStatus] = useState<'idle' | 'joining' | 'success' | 'error'>('idle');
@@ -106,8 +107,7 @@ export default function Join() {
     <div className="m-auto w-full h-full flex flex-col items-center justify-center">
       <div className="w-full h-full flex flex-col items-center justify-center mt-20">
         <h1 className="text-4xl font-semibold">Join a Room</h1>
-        <div className=" flex flex-col items-start justify-start">
-
+        <div className=" flex flex-col items-start justify-center">
           <div className="relative mb-4">
             <a className="text-sm">Code</a>
             <div className="grid grid-cols-6 gap-1" role="grid" aria-label="Room code input">
@@ -125,6 +125,8 @@ export default function Join() {
             </div>
             <input
               ref={inputRef}
+              value={roomCode}
+              onChange={(e) => setRoomCode(e.target.value)}
               type="text"
               className="absolute opacity-0 top-0 left-0 w-full h-full"
               onKeyDown={handleKeyDown}

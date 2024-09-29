@@ -261,7 +261,7 @@ export default function Room() {
           {others.map((player, i) => {
             let pAnsKey = [];
             let pGuesses = [];
-            let pGameIndex = currentRound.games.findIndex(g => g.id === player.id);
+            let pGameIndex = room.users.findIndex(g => g.userID === player.id);
             if (pGameIndex === -1) { return null; }
             for (let j = 0; j < player.data.rows.length; j++) {
               let g = player.data.rows[j].guess;

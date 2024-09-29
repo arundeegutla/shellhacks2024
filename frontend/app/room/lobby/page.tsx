@@ -168,7 +168,7 @@ export default function Room() {
         </div>
         <div className='mt-3 flex flex-row w-full items-start gap-3'>
 
-          <button className='items-start'>
+          <button className='items-start' onClick={() => { navigator.clipboard.writeText("https://shellhacks24.web.app/room/join?roomCode=" + roomCode) }}>
             <div className='flex flex-row rounded-lg px-4 py-2 bg-white/15 w-fit'><FaCopy />Copy Link
             </div>
           </button>
