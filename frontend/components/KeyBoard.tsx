@@ -17,7 +17,7 @@ export default function KeyBoard({
           <button
             key={key}
             onClick={() => handleKeyPress(key)}
-            className={`px-2 py-4 text-sm font-bold rounded-md bg-white/10 ${key.length > 1 ? 'w-16' : 'w-10'}`}
+            className={`hover:cursor-pointer px-2 py-4 text-sm font-bold rounded-md bg-white/10 ${key.length > 1 ? 'w-16' : 'w-10'}`}
             disabled={gameOver}
           >
             {key === 'BACKSPACE' ? '←' : key}

@@ -4,6 +4,7 @@ import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 import { connectFunctionsEmulator, getFunctions, httpsCallable } from "firebase/functions";
 import { ErrorCode } from "./util";
 import { JoinRoomResponse, MakeRoomResponse, GetRoomInfoResponse, GetGameInfoResponse, SubmitSecretWordInput } from "./types";
+import { JoinRoomResponse, MakeRoomResponse, GetRoomInfoResponse, GetGameInfoResponse, SubmitSecretWordInput } from "./types";
 
 
 const firebaseConfig = {
@@ -33,6 +34,7 @@ if (DEBUG) {
 
 
 
+
 const makeRoom = httpsCallable<unknown, MakeRoomResponse>(functions, "makeRoom");
 const joinRoom = httpsCallable<unknown, JoinRoomResponse>(functions, "joinRoom");
 const helloWorld = httpsCallable(functions, "helloWorld");
@@ -41,5 +43,7 @@ const leaveRoom = httpsCallable<unknown, { error: ErrorCode }>(functions, "leave
 const startRoom = httpsCallable<unknown, { error: ErrorCode }>(functions, "startRoom");
 const getGameInfo = httpsCallable<unknown, GetGameInfoResponse>(functions, "getGameInfo");
 const submitSecretWord = httpsCallable<SubmitSecretWordInput, { error: ErrorCode }>(functions, "submitSecretWord");
+const submitGuess = httpsCallable<SubmitSecretWordInput, { error: ErrorCode }>(functions, "submitGuess");
 
-export { db, makeRoom, joinRoom, helloWorld, getRoomInfo, leaveRoom, startRoom, getGameInfo, submitSecretWord };
+
+export { db, makeRoom, joinRoom, helloWorld, getRoomInfo, leaveRoom, startRoom, getGameInfo, submitSecretWord, submitGuess };
