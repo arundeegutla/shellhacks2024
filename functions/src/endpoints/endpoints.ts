@@ -3,7 +3,7 @@ import { ErrorCode } from "../errorCodes";
 import { getRoomData } from "../room";
 import { guessWord } from "../word-utils.ts/wordGuessing";
 import { updateListener } from "../util";
-import { createRound, setTrueWordAndTriggerRound } from "../firebase-utils/firebaseCalls";
+import { setTrueWordAndTriggerRound, createRound } from "../firebase-utils/firebaseCalls";
 import { RoomType } from "../game-utils/RoomType";
 
 const NUM_GUESSES = 6, WORD_LENGTH = 5;
@@ -90,15 +90,17 @@ export const initiateRound = onCall(async (request: CallableRequest<{room_code: 
 	}
 
     // perform function and clean up
-    const roomData = (await getRoomData(roomCode))?.data();
+    const roomData = await getRoomData(roomCode);
     if(roomData === undefined)
     {
         return {error: ErrorCode.roomNotFound};
     }
 
     const room = roomData as RoomType;
+    const users = room.users.map((user) => user.userID);   // eslint-disable-line
+    const roundId = String(room.roundCount);               // eslint-disable-line
 
-    await createRound(room.users.map((user) => user.userID), String(room.roundCount), roomCode, NUM_GUESSES, WORD_LENGTH);
+    await createRound(users, roundId, roomCode, NUM_GUESSES, WORD_LENGTH);
 	await updateListener(roomData.listenDocumentID, true);
 	return result;
 });
