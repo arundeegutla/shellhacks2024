@@ -16,7 +16,7 @@ export default function Join() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [name, setName] = useState<string>(randomName());
-  const [roomCode, setRoomCode] = useState<string>(searchParams.get('roomCode') ?? 'TESTS');
+  const [roomCode, setRoomCode] = useState<string>(searchParams.get('roomCode') ?? '');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [joining, setJoining] = useState<boolean>(false);
   const [joinStatus, setJoinStatus] = useState<'idle' | 'joining' | 'success' | 'error'>('idle');
