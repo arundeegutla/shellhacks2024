@@ -1,4 +1,4 @@
-import { readFileSync } from 'fs';
+import { DICTIONARY } from './words';
 const MIN_WORD_LENGTH = 4, MAX_WORD_LENGTH = 15;
 
 export function isWordValid(word: string): boolean
@@ -13,7 +13,5 @@ export function isWordValid(word: string): boolean
 
 export function isWordInDictionary(word: string): boolean
 {
-    const fileContent: string = readFileSync('./src/word-utils/words.txt', 'utf-8');
-    const dictionary: string[] = fileContent.split('\n');
-    return dictionary.includes(word.toLowerCase());
+    return DICTIONARY.includes(word.toLowerCase());
 }
