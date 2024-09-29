@@ -21,6 +21,12 @@ export async function createRound(userIds: string[], roundId: string, roomCode: 
         .set({});
 
     const batch = getFirestore().batch();
+    batch.update(getRoundReference(roundId, roomCode), {
+        "has_started": false,
+        "time_started": Date.now(),
+        "num_guesses_allowed": num_guesses,
+        "word_length": word_length
+    });
     userIds.forEach((userId) => {
         batch.set(getBoardReference(userId, roundId, roomCode), createDefaultBoard(num_guesses, word_length));
     });

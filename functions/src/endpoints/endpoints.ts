@@ -98,7 +98,7 @@ export const initiateRound = onCall(async (request: CallableRequest<{room_code: 
 
     const room = roomData as RoomType;
 
-    await createRound(room.users.map((user) => user.userID), String(room.round_counter), roomCode, NUM_GUESSES, WORD_LENGTH);
+    await createRound(room.users.map((user) => user.userID), String(room.roundCount), roomCode, NUM_GUESSES, WORD_LENGTH);
 	await updateListener(roomData.listenDocumentID, true);
 	return result;
 });
