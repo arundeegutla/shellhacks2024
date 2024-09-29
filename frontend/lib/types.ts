@@ -19,9 +19,6 @@ export interface UserType {
     roomCode: string
 };
 
-
-
-
 export enum Verdict
 {
     BLANK=0,
@@ -52,6 +49,7 @@ export interface UserGame {
     id: string,
     data: GameBoard
 }
+
 export type Round =
 {
     has_started: boolean,
