@@ -59,9 +59,23 @@ export default function LiveBoard({
   };
 
   const getLetterState = (letter: string, index: number, row: number) => {
-    if (row >= currentRow || letter === '') return 'bg-black/50 border-2 border-white/10';
-    if (solution[index] === letter) return 'bg-green-500 text-white';
-    if (solution.includes(letter)) return 'bg-yellow-600 text-white';
+    if (row >= currentRow || letter === '') {
+      return 'bg-black/50 border-2 border-white/10';
+    }
+
+    if (solution[index] === letter) {
+      return 'bg-green-500 text-white';
+    }
+
+    if (solution.includes(letter)) {
+      const indices = [...solution.split('')].reduce((acc, curr, i) => curr === letter ? [...acc, i] : acc, [] as number[]);
+      const correctGuesses = indices.filter(i => guesses[row][i] === letter).length;
+      const previousOccurrences = guesses[row].slice(0, index).split(letter).length - 1;
+      if (previousOccurrences + correctGuesses < indices.length) {
+        return 'bg-yellow-600 text-white';
+      }
+    }
+
     return 'bg-white/15 text-white';
   };
 
@@ -101,7 +115,7 @@ export default function LiveBoard({
           </div>
         ))}
       </div>
-      <KeyBoard handleKeyPress={handleKeyPress} gameOver={gameOver} />
+      <KeyBoard guesses={guesses} word={solution} handleKeyPress={handleKeyPress} gameOver={gameOver} />
     </>
   );
 }
