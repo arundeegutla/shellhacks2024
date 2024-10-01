@@ -10,14 +10,19 @@ export default function LiveBoard({
   setGameOver,
   solution,
   guesses,
-  submit
+  submit,
+  setGuesses,
+  start
 }: {
   gameOver: boolean;
   setGameOver: (x: boolean) => void
   solution: string;
   guesses: string[];
-  submit: (s: string) => void
+  submit: (s: string) => void;
+  setGuesses: (s: string[]) => void;
+  start: boolean;
 }) {
+
   const [currentGuess, setCurrentGuess] = useState('');
   const [currentRow, setCurrentRow] = useState(() => {
     let i = 0;
@@ -29,8 +34,11 @@ export default function LiveBoard({
 
   useEffect(() => {
     setGameOver(guesses.some(str => str === solution));
-    setCurrentGuess('')
-    setCurrentRow(guesses.findIndex(str => str.length === 0))
+    setCurrentRow(() => {
+      let i = 0;
+      while (i < 6 && guesses[i].length !== 0) i++;
+      return i;
+    })
   }, [guesses, setGameOver, solution]);
 
   const validateWord = (s: string) => {
@@ -39,14 +47,18 @@ export default function LiveBoard({
 
   const submitGuess = useCallback(() => {
     if (!validateWord(currentGuess)) return;
-    submit(currentGuess)
+    const newGuesses = [...guesses];
+    newGuesses[currentRow] = currentGuess;
+    setGuesses(newGuesses);
+    setCurrentGuess('')
     if (currentGuess === solution || currentRow >= MAX_GUESSES - 1) {
       setGameOver(true);
     }
-
-  }, [currentGuess, currentRow, setGameOver, solution, submit]);
+    submit(currentGuess)
+  }, [currentGuess, currentRow, guesses, setGameOver, setGuesses, solution, submit]);
 
   const handleKeyPress = (key: string) => {
+    if (!start) return;
     if (key === 'ENTER') {
       if (currentGuess.length === WORD_LENGTH) {
         submitGuess();
@@ -59,6 +71,9 @@ export default function LiveBoard({
   };
 
   const getLetterState = (letter: string, index: number, row: number) => {
+    if (!start) {
+      return 'bg-white/30 border-2 border-white/10';
+    }
     if (row >= currentRow || letter === '') {
       return 'bg-black/50 border-2 border-white/10';
     }
@@ -81,6 +96,7 @@ export default function LiveBoard({
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (!start) return;
       if (gameOver) return;
       if (e.key === 'Enter') {
         if (currentGuess.length === WORD_LENGTH) {

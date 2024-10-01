@@ -12,6 +12,7 @@ import MiniWordle from '@/components/MiniWordle';
 import Loading from '@/components/Loading';
 import LiveBoard from '@/components/LiveBoard';
 import { DICTIONARY } from '@/lib/word';
+import { Button, CircularProgress } from '@mui/material';
 
 const MAX_GUESSES = 6;
 
@@ -33,6 +34,7 @@ export default function Room() {
   const [start, setStart] = useState(false);
   const [hostName, setHostName] = useState('');
   const [roundStartedTime, setRoundStartedTime] = useState(Date.now());
+  const [creating, setCreating] = useState(false);
 
 
 
@@ -183,11 +185,27 @@ export default function Room() {
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const key = e.key.toUpperCase();
+    if (key === 'BACKSPACE') {
+      setPickWord(prev => prev.slice(0, -1));
+    } else if (key.length === 1 && key >= 'A' && key <= 'Z' && pickWord.length < 6) {
+      setPickWord(prev => (prev + key).slice(0, 6));
+    } else if (key === 'ENTER' && pickWord.length === 5) {
+      console.log(pickWord, pickWordBool)
+      submitPickedWord();
+    }
+  };
+
   const submitPickedWord = async () => {
+    console.log("submitting word")
+    setCreating(true)
     const obj = { room_code: roomId, word: pickWord.toUpperCase(), user_id: userID!, round_id: (roundNum - 1).toString() };
     console.log("submitting secret word", obj);
     await submitSecretWord(obj).then((resp) => {
       setPickWordBool(true);
+      setCreating(false)
       console.log("secret word response", resp);
     });
   }
@@ -198,16 +216,15 @@ export default function Room() {
     setGameOver(false)
   };
 
-  if (gameOver && room.roundCount === room.users.length) {
+  const roundNum = room!.roundCount;
+  const currentRound = room!.rounds[roundNum - 1];
+  const others = currentRound.games.filter(g => g.id !== userID && g.id !== room.hostID);
+  if (gameOver && room.roundCount === room.users.length && currentRound.has_finished) {
     return <div>
       <h1 className='text-4xl'>Results</h1>
       <Leaderboard players={room} />
     </div>
   }
-
-  const roundNum = room!.roundCount;
-  const currentRound = room!.rounds[roundNum - 1];
-  const others = currentRound.games.filter(g => g.id !== userID && g.id !== room.hostID);
   return (
     <div className="m-auto w-full">
       {gameOver && (
@@ -221,40 +238,52 @@ export default function Room() {
         <div className='flex flex-row items-end justify-end pr-16 w-[33%]'>
           <Leaderboard players={room} />
         </div>
-        <div className='flex flex-col items-center justify-center wordle w-[34%]'>
-          <div className='flex flex-row items-center justify-center rounded-lg bg-white/10 px-2 py-1 mb-6 font-medium  min-w-20 gap-1'>
+        <div className='flex flex-col items-center justify-center wordle w-[34%] min-w-fit'>
+          <div className='flex flex-row items-center justify-center rounded-lg px-2 py-1 mb-6 font-medium  min-w-20 gap-1'>
             <MdOutlineTimer />
             {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
           </div>
           {isHost &&
-            <div className='bg-white/5 p-10 flex flex-col items-center justify-center rounded-lg'>
-              <div className="mb-4 w-full">
+            <div className='p-10 flex flex-col items-center justify-center rounded-lg'>
+              <div className="relative mb-4 w-full">
                 <h2 className="text-xl text-center mb-2">{!pickWordBool ? 'Pick a word!' : 'Ooh nice one!'}</h2>
+                <div className="grid grid-cols-5 gap-1" role="grid" aria-label="Room code input">
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <div key={index} className="relative w-20 h-20">
+                      <div className={`absolute w-full h-full transition-all duration-500 bg-white/15 rounded-md`} />
+                      <div className="absolute w-full h-full flex items-center justify-center">
+                        <span className="text-white text-3xl font-bold">{pickWord[index] || ''}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
                 <input
-                  disabled={pickWordBool}
                   ref={wordInputRef}
                   type="text"
-                  id="name-input"
-                  value={pickWord}
+                  className="absolute opacity-0 top-0 left-0 w-full h-full bg-pink-500"
+                  onKeyDown={handleKeyDown}
+                  autoComplete="off"
                   onChange={changeName}
-                  className={`w-full px-4 py-2 bg-white/15 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 ${!validateWord(pickWord) ? 'border-red-500' : ''
-                    }`}
-                  placeholder="5 letter word"
-                  required
                   aria-invalid={!validateWord(pickWord)}
-                  aria-describedby="name-error"
+                  value={pickWord}
+                  disabled={pickWordBool}
                 />
               </div>
-              <button className={`px-6 py-2 rounded-lg shadow-lg font-bold transition-colors ${!pickWordBool && validateWord(pickWord)
-                ? 'bg-green-500 text-white hover:bg-green-600'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                }`}
-                disabled={pickWordBool || !validateWord(pickWord)} onClick={submitPickedWord}>Submit</button>
+              <button
+                onClick={submitPickedWord}
+                disabled={pickWordBool || !validateWord(pickWord)}
+                className={`hover:cursor-pointer flex flex-row justify-center items-center px-6 py-2 rounded-lg shadow-lg font-bold transition-colors ${!pickWordBool && validateWord(pickWord)
+                  ? 'bg-green-500 text-white hover:bg-green-600'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  }`}>
+                {creating ? <CircularProgress size={20} className="mr-2" color="inherit" /> : null}
+                {creating ? "Submitting" : "Submit"}
+              </button>
             </div>
           }
           {!isHost && !start && <h1 className='text-xl mb-5'>{hostName} is picking the word...</h1>}
           {!isHost && start && <h1 className='text-xl mb-5'>{hostName} has picked the word!</h1>}
-          {!isHost && <LiveBoard submit={submitSolve} guesses={guesses} gameOver={gameOver} setGameOver={setGameOver} solution={currentRound.true_word} />}
+          {!isHost && <LiveBoard start={start} setGuesses={setGuesses} submit={submitSolve} guesses={guesses} gameOver={gameOver} setGameOver={setGameOver} solution={currentRound.true_word} />}
 
         </div>
         <div className='flex flex-col gap-1 mr-auto w-[33%] pl-16'>
@@ -268,7 +297,7 @@ export default function Room() {
               pGuesses.push(g ?? '');
               pAnsKey.push(player.data.rows[j].verdicts);
             }
-            return <MiniWordle key={i} ansKey={pAnsKey} guesses={pGuesses} name={room!.users[pGameIndex].name} is_done={player.data.is_done} />
+            return <MiniWordle key={i} word={currentRound.true_word} guesses={pGuesses} name={room!.users[pGameIndex].name} is_done={player.data.is_done} />
           })}
         </div>
       </div>
@@ -282,15 +311,23 @@ const Popup = ({ secretWord, isHost, onClose }: {
   isHost: boolean;
   onClose: () => void
 }) => {
+  const [clicked, setClicked] = useState(false);
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 text-black/75">
-      <div className="bg-white/70 rounded-lg p-5 text-center">
+    <div className="z-50 fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 text-black/75">
+      <div className="bg-white/90 backdrop-blur-md rounded-lg p-5 text-center flex flex-col items-center justify-center">
         <h2 className="text-xl font-bold">Round Over!</h2>
         <p className="mt-2">The secret word was: <strong>{secretWord}</strong></p>
         {isHost &&
-          <button onClick={onClose} className="mt-4 px-4 py-2 bg-blue-500 text-black/75 rounded-lg">
+          <button
+            onClick={() => {
+              setClicked(true);
+              onClose();
+            }}
+            className={`flex flex-row justify-center items-center shadow-lg font-bold transition-colors mt-4 px-4 py-2 bg-blue-500 text-black/75 rounded-lg`}>
+            {clicked ? <CircularProgress size={20} className="mr-2" color="inherit" /> : null}
             Next round
-          </button>}
+          </button>
+        }
         {!isHost && "Please wait for the next round..."}
       </div>
     </div>

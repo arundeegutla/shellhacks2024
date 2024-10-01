@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
-import { TextField } from '@mui/material';
+import { Button, CircularProgress, TextField } from '@mui/material';
 import ErrorMessage from "@/components/errorMessage";
 import { joinRoom } from "@/lib/firebase";
 import { randomName, validateName, getNameHelperText, validateRoomCode, getRoomCodeHelperText, ErrorCode, getErrorMessage } from "@/lib/util";
@@ -157,15 +157,14 @@ export default function Join() {
 
 
         </div>
-
         <button
-          onClick={goToRoom}
           disabled={!canJoin || joining}
-          className={`hover:cursor-pointer px-6 py-2 rounded-lg shadow-lg font-bold transition-colors ${canJoin && !joining
+          onClick={goToRoom}
+          className={`flex flex-row justify-center items-center px-6 py-2 rounded-lg shadow-lg font-bold transition-colors ${canJoin && !joining
             ? 'bg-green-500 text-white hover:bg-green-600'
             : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }`}
-        >
+            }`}>
+          {joining ? <CircularProgress size={20} className="mr-2" color="inherit" /> : null}
           {joining ? "Joining..." : "Join"}
         </button>
         {errorMessage && <ErrorMessage error={errorMessage} />}
