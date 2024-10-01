@@ -23,6 +23,7 @@ export default function Room() {
   const [userNames, setUserNames] = useState<string[]>([]);
   const [flippedStates, setFlippedStates] = useState(Array(roomCode ? roomCode.length : 9).fill({ isFlipped: false, colorIndex: 0 }));
   const [lastFlippedIndex, setLastFlippedIndex] = useState(-1);
+  const [creating, setCreating] = useState(false);
 
   const refreshRoomData = async () => {
     if (userID === null || roomListener === null) return;
@@ -53,24 +54,6 @@ export default function Room() {
     return newIndex;
   };
 
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     let indexToFlip;
-  //     do {
-  //       indexToFlip = Math.floor(Math.random() * 8);
-  //     } while (indexToFlip === lastFlippedIndex);
-  //     setLastFlippedIndex(indexToFlip);
-  //     setFlippedStates(prevStates =>
-  //       prevStates.map((state, idx) =>
-  //         idx === indexToFlip
-  //           ? { isFlipped: true, colorIndex: getRandomColorIndex(state.colorIndex) }
-  //           : { isFlipped: false, colorIndex: state.colorIndex }
-  //       )
-  //     );
-  //   }, 1500);
-
-  //   return () => clearInterval(interval);
-  // }, [lastFlippedIndex]);
 
   // Load data from local storage
   useEffect(() => {
@@ -88,13 +71,14 @@ export default function Room() {
       router.replace("/");
     }
   }, [roomCode]);
+
+
   useEffect(() => {
     if (!roomCode) {
       router.replace('/');
     }
   }, [roomCode, router]);
 
-  // Listen for changes in the room
   useEffect(() => {
     if (roomListener === null) return;
     const unsubscribe = onSnapshot(doc(db, "listeners", roomListener), (doc) => {
@@ -111,7 +95,6 @@ export default function Room() {
     return () => unsubscribe();
   }, [roomListener]);
 
-  // Leave the room
   const clickLeaveRoom = async () => {
     if (userID === null || roomCode === null) return;
     try {
@@ -129,15 +112,11 @@ export default function Room() {
     }
   };
 
-
-
-
-
-
   const canStartGame = isHost && userNames.length > 1;
   const clickStartGame = async () => {
     if (!canStartGame) return;
     try {
+      setCreating(true);
       setLoaded(false);
       console.log({ roomCode, userID });
       const response = (await startRoom({ roomCode, userID })).data;
@@ -149,6 +128,8 @@ export default function Room() {
     } catch (err) {
       console.error(err);
       setLoaded(true);
+    } finally {
+      setCreating(false)
     }
   };
 
@@ -168,8 +149,8 @@ export default function Room() {
         </div>
         <div className='mt-3 flex flex-row w-full items-start gap-3'>
 
-          <button className='items-start' onClick={() => { navigator.clipboard.writeText("https://shellhacks24.web.app/room/join?roomCode=" + roomCode) }}>
-            <div className='flex flex-row rounded-lg px-4 py-2 bg-white/15 w-fit'><FaCopy />Copy Link
+          <button className='flex flex-row items-center justify-center' onClick={() => { navigator.clipboard.writeText("https://shellhacks24.web.app/room/join?roomCode=" + roomCode) }}>
+            <div className='flex flex-row items-center justify-center rounded-lg px-4 py-2 bg-white/15 w-fit gap-1 hover:bg-gray-500'><FaCopy />Copy Link
             </div>
           </button>
           <div className='flex flex-col gap-2'>
@@ -192,25 +173,26 @@ export default function Room() {
             ))}
           </div>
 
-          {isHost && <button
-            onClick={clickStartGame}
-            disabled={!canStartGame}
-            className={`hover:cursor-pointer px-6 py-2 rounded-lg shadow-lg font-bold transition-colors ${canStartGame
-              ? 'bg-gray-600 text-white hover:bg-gray-800'
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              }`}
-          >
-            Start Game
-          </button>}
+          {isHost &&
+            <button
+              disabled={!canStartGame}
+              onClick={clickStartGame}
+              className={`flex flex-row justify-center items-center px-6 py-2 rounded-lg shadow-lg font-bold transition-colors ${canStartGame
+                ? 'bg-green-500 text-white hover:bg-green-600'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}>
+              {creating ? <CircularProgress size={20} className="mr-2" color="inherit" /> : null}
+              {creating ? "Starting..." : "Start Game"}
+            </button>}
         </div>
 
 
         {!isHost && <Typography variant="subtitle1" sx={{ marginTop: "1rem" }}>
           Waiting for host to start the game...</Typography>}
 
-        <Backdrop open={!loaded} sx={{ position: "absolute" }}>
+        {/* <Backdrop open={!loaded} sx={{ position: "absolute" }}>
           <CircularProgress color="inherit" />
-        </Backdrop>
+        </Backdrop> */}
       </div>
     </div >)
 }

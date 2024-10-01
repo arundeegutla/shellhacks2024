@@ -101,20 +101,20 @@ export default function Create() {
           </div>
 
           <button
-            onClick={createRoom}
             disabled={error}
-            className={`px-6 py-2 rounded-lg shadow-lg font-bold transition-colors ${!error
+            onClick={createRoom}
+            className={`flex flex-row justify-center items-center px-6 py-2 rounded-lg shadow-lg font-bold transition-colors ${!error
               ? 'bg-green-500 text-white hover:bg-green-600'
               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              }`}
-          >
+              }`}>
+            {creating ? <CircularProgress size={20} className="mr-2" color="inherit" /> : null}
             {creating ? "Creating..." : "Create"}
           </button>
           {errorMessage && <ErrorMessage error={errorMessage} />}
           {loading && <Loading className="h-28" />}
         </div>
 
-      </div>
+      </div >
     </>
   );
 }

@@ -57,7 +57,7 @@ export default function KeyBoard({
       case 'correct':
         return 'bg-green-500 text-white';
       case 'present':
-        return 'bg-yellow-500 text-white';
+        return 'bg-yellow-600 text-white';
       case 'absent':
         return 'bg-gray-500 text-white';
       default:
